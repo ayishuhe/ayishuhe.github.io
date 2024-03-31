@@ -1,0 +1,54 @@
+<!-- 提示：AI自动生成，仅供参考 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Countdown</title>
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+ 
+<div>
+  <h1>新年倒计时</h1>
+  <p id="countdown"></p>
+</div>
+ 
+<script>
+function countdown() {
+  const birthday = new Date('Jan 29, 2025 00:00:00'); // 设置过年时间
+  const now = new Date();
+  const distance = birthday - now;
+ 
+  if (distance < 0) {
+    document.getElementById('countdown').innerHTML = '新年快乐!';
+    clearInterval(intervalId);
+    return;
+  }
+ 
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+ 
+  document.getElementById('countdown').innerHTML = `
+    ${days}天 ${hours}: ${minutes}: ${seconds}
+  `;
+}
+ 
+countdown(); // 首次运行计数器
+const intervalId = setInterval(countdown, 1000); // 每秒更新计数器
+</script>
+ 
+</body>
+</html>
