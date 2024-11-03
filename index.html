@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="favicon.png" type="image/x - icon">
+    <title>2025春节倒计时</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        #countdown {
+            font-size: 3em;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+	<h1>春节倒计时</h1>
+	<h2>2025 乙巳蛇年春节时间：2025年1月29日 星期三 农历正月初一</h2>
+    <h1>距离2025年春节还有</h1>
+    <div id="countdown"></div>
+
+    <script>
+        // 目标日期：2025年1月29日 00:00:00
+        const targetDate = new Date("Jan 29, 2025 00:00:00").getTime();
+
+        function updateCountdown() {
+            // 获取当前时间
+            const now = new Date().getTime();
+            
+            // 计算时间差
+            const diff = targetDate - now;
+
+            // 如果时间差小于0，则倒计时结束
+            if (diff < 0) {
+                document.getElementById("countdown").innerText = "春节已经到来！";
+                return;
+            }
+
+            // 将时间差转换为天、小时、分钟和秒
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            // 更新页面上的倒计时显示
+            document.getElementById("countdown").innerText = `${days}天 ${hours}小时 ${minutes}分钟 ${seconds}秒`;
+        }
+
+        // 立即调用一次updateCountdown函数，然后每秒调用一次
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
