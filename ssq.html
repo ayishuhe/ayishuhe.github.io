@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="favicon.png" type="image/x - icon">
+<title>双色球号码生成器</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+.container {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 10px;
+}
+h1 {
+    font-size: 2em;
+    background: linear-gradient(to right, #ff0000, #800080); /* 红色到紫色渐变 */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.results {
+    margin-top: 20px;
+}
+.result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px; /* 增加底部间距 */
+    position: relative;
+}
+.ball {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    color: #fff;
+    text-align: center;
+    margin: 0 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+}
+.ball.red {
+    background: radial-gradient(circle, #ff4c4c, #b20000);
+}
+.ball.blue {
+    background: radial-gradient(circle, #4c8bff, #0000b2);
+}
+button {
+    padding: 10px 20px;
+    margin-top: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #0056b3;
+}
+.separator {
+    height: 2px;
+    background: linear-gradient(to right, #ff0033, #ff5500, #ffff0000, #00ff00, #0033ff, #8000ff);
+    position: absolute;
+    bottom: -10px; /* 调整分割线的位置 */
+}
+.info {
+    margin-top: 40px;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+.disclaimer {
+    margin-top: 40px;
+    font-size: 12px;
+    color: #999;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>双色球号码生成器</h1>
+    <button onclick="generateNumbers()">生成8组号码</button>
+    <div id="results" class="results"></div>
+    <div class="info">
+        <h2>双色球游戏规则：</h2>
+        <p>双色球彩票由6个红色球号码和1个蓝色球号码组成。红色球号码从1-33中选择，蓝色球号码从1-16中选择。每期开奖从33个红球中随机抽取6个号码，从16个蓝球中随机抽取1个号码。</p>
+        <h3>复式投注规则：</h3>
+        <p>复式投注是指在购买彩票时选择超过基本投注规定的数量的号码。例如，在双色球中，可以选择多于6个红色球号码和/或多于1个蓝色球号码进行投注。复式投注会根据所选号码的数量自动组合成多个投注组合，每个组合都符合基本投注的规定。</p>
+        <h3>复式投注中奖计算方式：</h3>
+        <p>复式投注的中奖计算方式与单式投注相同，即需要匹配开奖号码中的相应数量的号码才能中奖。不同的是，复式投注因为包含了更多的号码组合，所以中奖的机会相对更高。具体来说，如果选择了8个红色球号码和2个蓝色球号码进行复式投注，则会产生\(C_8^6 \times C_2^1\)种不同的投注组合，即28种组合，每一种组合都有可能中奖。</p>
+        <h2>兑奖有限时效：</h2>
+        <p>双色球彩票的有效兑奖期限为自开奖之日起60天内有效。逾期未兑奖视为弃奖，奖金将纳入公益金。</p>
+    </div>
+    <div class="disclaimer">
+        <p><strong>免责声明：</strong>本页面提供的信息仅供参考，具体的双色球游戏规则和中奖计算方式以及兑奖时效请以官方公告为准。</p>
+    </div>
+</div>
+
+<script>
+function generateNumbers() {
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = ''; // 清空之前的号码
+
+    for (let i = 0; i < 8; i++) {
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'result';
+
+        const redBalls = generateUniqueRandomNumbers(6, 1, 33).sort((a, b) => a - b);
+        for (const number of redBalls) {
+            createBall(resultDiv, number, 'ball red');
+        }
+
+        const blueBall = Math.floor(Math.random() * 16) + 1;
+        createBall(resultDiv, blueBall, 'ball blue');
+
+        resultsDiv.appendChild(resultDiv);
+
+        // 动态设置分割线宽度
+        if (i < 7) {
+            const separator = document.createElement('div');
+            separator.className = 'separator';
+            resultDiv.appendChild(separator);
+
+            updateSeparatorPosition(resultDiv);
+        }
+    }
+}
+
+function updateSeparatorPosition(resultDiv) {
+    const separator = resultDiv.querySelector('.separator');
+    const firstRedBall = resultDiv.querySelector('.ball.red');
+    const lastBlueBall = resultDiv.querySelector('.ball.blue');
+    const firstRedBallRect = firstRedBall.getBoundingClientRect();
+    const lastBlueBallRect = lastBlueBall.getBoundingClientRect();
+
+    const separatorWidth = lastBlueBallRect.right - firstRedBallRect.left;
+    separator.style.width = `${separatorWidth}px`;
+    separator.style.left = `${firstRedBallRect.left - resultDiv.getBoundingClientRect().left}px`;
+}
+
+function generateUniqueRandomNumbers(count, min, max) {
+    const numbers = new Set();
+    while (numbers.size < count) {
+        const number = Math.floor(Math.random() * (max - min + 1)) + min;
+        numbers.add(number);
+    }
+    return Array.from(numbers);
+}
+
+function createBall(parent, number, className) {
+    const ball = document.createElement('div');
+    ball.className = className;
+    ball.textContent = number < 10 ? `0${number}` : `${number}`;
+    parent.appendChild(ball);
+}
+
+// 监听窗口尺寸变化
+window.addEventListener('resize', () => {
+    const resultDivs = document.querySelectorAll('.result');
+    resultDivs.forEach(resultDiv => {
+        updateSeparatorPosition(resultDiv);
+    });
+});
+
+// 初始化生成号码
+generateNumbers();
+</script>
+</body>
+</html>
