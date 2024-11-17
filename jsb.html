@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+	<link rel="icon" href="favicon.png" type="image/x - icon">
+<title>在线记事本</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    #editor {
+        width: 100%;
+        height: 300px;
+        margin-top: 10px;
+    }
+    .button-group {
+        margin-bottom: 10px;
+    }
+    .find-replace-group {
+        margin-bottom: 10px;
+    }
+    .extract-group {
+        margin-bottom: 10px;
+    }
+    .extracted-text {
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+<h1>在线记事本</h1>
+<div class="button-group">
+    <button onclick="openFile()">打开</button>
+    <button onclick="saveFile()">保存</button>
+    <button onclick="copyText()">复制</button>
+    <button onclick="pasteText()">粘贴</button>
+    <button onclick="clearText()">清空</button>
+    <button onclick="printText()">打印</button>
+</div>
+<div class="find-replace-group">
+    <label for="findInput">查找：</label>
+    <input type="text" id="findInput">
+    <button onclick="findText()">查找</button>
+    <label for="replaceInput">替换为：</label>
+    <input type="text" id="replaceInput">
+    <button onclick="replaceText()">替换</button>
+    <button onclick="replaceAllText()">全部替换</button>
+</div>
+<div class="extract-group">
+    <label for="startMarker">前标识符：</label>
+    <input type="text" id="startMarker">
+    <label for="endMarker">后标识符：</label>
+    <input type="text" id="endMarker">
+    <button onclick="extractText()">提取中间文本</button>
+</div>
+<textarea id="editor"></textarea>
+<div class="extracted-text" style="display:none;">
+    <h3>提取的文本</h3>
+    <textarea id="extractedEditor" readonly></textarea>
+    <button onclick="copyExtractedText()">复制</button>
+</div>
+
+<script>
+function openFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editor').value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+    };
+    input.click();
+}
+
+function saveFile() {
+    const textToSave = document.getElementById('editor').value;
+    const blob = new Blob([textToSave], {type: "text/plain"});
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'note.txt';
+    link.click();
+}
+
+function copyText() {
+    const textarea = document.getElementById('editor');
+    textarea.select();
+    document.execCommand('copy');
+}
+
+function pasteText() {
+    const textarea = document.getElementById('editor');
+    navigator.clipboard.readText().then(text => {
+        textarea.value += text;
+    }).catch(err => {
+        alert('无法读取剪贴板内容');
+    });
+}
+
+function clearText() {
+    document.getElementById('editor').value = '';
+}
+
+function findText() {
+    const editor = document.getElementById('editor');
+    const findValue = document.getElementById('findInput').value;
+    const text = editor.value;
+
+    if (findValue) {
+        const index = text.indexOf(findValue);
+        if (index !== -1) {
+            editor.setSelectionRange(index, index + findValue.length);
+            editor.focus();
+        } else {
+            alert('未找到匹配的文本');
+        }
+    } else {
+        alert('请输入要查找的文本');
+    }
+}
+
+function replaceText() {
+    const editor = document.getElementById('editor');
+    const findValue = document.getElementById('findInput').value;
+    const replaceValue = document.getElementById('replaceInput').value;
+    const text = editor.value;
+
+    if (findValue) {
+        const newText = text.replace(findValue, replaceValue);
+        editor.value = newText;
+    } else {
+        alert('请输入要查找的文本');
+    }
+}
+
+function replaceAllText() {
+    const editor = document.getElementById('editor');
+    const findValue = document.getElementById('findInput').value;
+    const replaceValue = document.getElementById('replaceInput').value;
+    const text = editor.value;
+
+    if (findValue) {
+        const newText = text.replaceAll(findValue, replaceValue);
+        editor.value = newText;
+    } else {
+        alert('请输入要查找的文本');
+    }
+}
+
+function extractText() {
+    const editor = document.getElementById('editor');
+    const startMarker = document.getElementById('startMarker').value;
+    const endMarker = document.getElementById('endMarker').value;
+    const text = editor.value;
+
+    if (startMarker && endMarker) {
+        const regex = new RegExp(`${startMarker}(.*?)${endMarker}`, 'gs');
+        const matches = [];
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+            matches.push(match[1]);
+        }
+
+        if (matches.length > 0) {
+            const extractedText = matches.join('\n');
+            document.getElementById('extractedEditor').value = extractedText;
+            document.querySelector('.extracted-text').style.display = 'block';
+
+            // Select the first match in the original text
+            const firstMatchIndex = text.indexOf(startMarker + matches[0] + endMarker);
+            if (firstMatchIndex !== -1) {
+                editor.setSelectionRange(firstMatchIndex, firstMatchIndex + startMarker.length + matches[0].length + endMarker.length);
+                editor.focus();
+            }
+        } else {
+            alert('未找到匹配的文本');
+        }
+    } else {
+        alert('请输入前标识符和后标识符');
+    }
+}
+
+function copyExtractedText() {
+    const extractedEditor = document.getElementById('extractedEditor');
+    extractedEditor.select();
+    document.execCommand('copy');
+    alert('已复制提取的文本');
+}
+
+function printText() {
+    const editor = document.getElementById('editor');
+    const textToPrint = editor.value;
+
+    const printWindow = window.open('', '', 'height=500,width=800');
+    printWindow.document.write('<html><head><title>打印内容</title>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(`<pre>${textToPrint}</pre>`);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+}
+</script>
+</body>
+</html>

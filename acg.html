@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="favicon.png" type="image/x - icon">
+    <title>必看动漫50部</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .container:hover {
+            transform: scale(1.02);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        h1 span {
+            color: #3c3c3c;
+        }
+        .section {
+            width: 48%; /* 每个部分占总宽度的48%，留出2%的间隔 */
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #5a5a5a;
+            font-size: 1.8em;
+            margin-top: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            background: #f9f9f9;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        li:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>
+        <span style="color: #ff5733;">必</span>
+        <span style="color: #33ff57;">看</span>
+        <span style="color: #3357ff;">动</span>
+        <span style="color: #ff33a1;">漫</span>
+        <span style="color: #ff8f33;">50</span>
+        <span style="color: #33ff8f;">+</span>
+    </h1>
+    
+    <div class="section">
+        <h2>动漫系列</h2>
+        <ul>
+            <li onclick="copyToClipboard('秦时明月')">秦时明月</li>
+            <li onclick="copyToClipboard('进击的巨人')">进击的巨人</li>
+            <li onclick="copyToClipboard('我的英雄学院')">我的英雄学院</li>
+			<li onclick="copyToClipboard('名侦探柯南')">名侦探柯南</li>
+            <li onclick="copyToClipboard('东京食尸鬼')">东京食尸鬼</li>
+            <li onclick="copyToClipboard('一拳超人')">一拳超人</li>
+            <li onclick="copyToClipboard('刀剑神域')">刀剑神域</li>
+            <li onclick="copyToClipboard('猫和老鼠')">猫和老鼠</li>
+            <li onclick="copyToClipboard('全职猎人')">全职猎人</li>
+            <li onclick="copyToClipboard('火影忍者')">火影忍者</li>
+            <li onclick="copyToClipboard('海贼王')">海贼王</li>
+            <li onclick="copyToClipboard('龙珠Z')">龙珠Z</li>
+            <li onclick="copyToClipboard('魔法禁书目录')">魔法禁书目录</li>
+            <li onclick="copyToClipboard('银魂')">银魂</li>
+            <li onclick="copyToClipboard('死神')">死神</li>
+            <li onclick="copyToClipboard('夏目友人帐')">夏目友人帐</li>
+            <li onclick="copyToClipboard('妖精的尾巴')">妖精的尾巴</li>
+            <li onclick="copyToClipboard('炼气十万年')">炼气十万年</li>
+            <li onclick="copyToClipboard('海绵宝宝')">海绵宝宝</li>
+            <li onclick="copyToClipboard('灌篮高手')">灌篮高手</li>
+            <li onclick="copyToClipboard('秒速5厘米')">秒速5厘米</li>
+            <li onclick="copyToClipboard('工作细胞')">工作细胞</li>
+            <li onclick="copyToClipboard('约定的梦幻岛')">约定的梦幻岛</li>
+            <li onclick="copyToClipboard('鬼灯的冷笑话')">鬼灯的冷笑话</li>
+            <li onclick="copyToClipboard('钢之炼金术师')">钢之炼金术师</li>
+            <li onclick="copyToClipboard('紫罗兰永恒花园')">紫罗兰永恒花园</li>
+            <li onclick="copyToClipboard('灵笼')">灵笼</li>
+			<li onclick="copyToClipboard('犬夜叉')">犬夜叉</li>
+            <li onclick="copyToClipboard('碧蓝幻想 The Animation')">碧蓝幻想 The Animation</li>
+            <li onclick="copyToClipboard('Dr.STONE石纪元')">Dr.STONE石纪元</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>动漫电影</h2>
+        <ul>
+            <li onclick="copyToClipboard('你的名字。')">你的名字。</li>
+            <li onclick="copyToClipboard('千与千寻')">千与千寻</li>
+            <li onclick="copyToClipboard('天气之子')">天气之子</li>
+            <li onclick="copyToClipboard('极速蜗牛')">极速蜗牛</li>
+            <li onclick="copyToClipboard('超级大坏蛋')">超级大坏蛋</li>
+            <li onclick="copyToClipboard('怪兽电力公司')">怪兽电力公司</li>
+			<li onclick="copyToClipboard('名侦探柯南剧场版')">名侦探柯南剧场版</li>
+            <li onclick="copyToClipboard('魁拔系列')">魁拔系列</li>
+            <li onclick="copyToClipboard('穿越时空的少女')">穿越时空的少女</li>
+            <li onclick="copyToClipboard('飞屋环游记')">飞屋环游记</li>
+			<li onclick="copyToClipboard('寻梦环游记')">寻梦环游记</li>
+            <li onclick="copyToClipboard('机器人总动员')">机器人总动员</li>
+			<li onclick="copyToClipboard('玩具总动员系列')">玩具总动员系列</li>
+            <li onclick="copyToClipboard('驯龙高手')">驯龙高手</li>
+			<li onclick="copyToClipboard('狮子王')">狮子王</li>
+            <li onclick="copyToClipboard('哈尔的移动城堡')">哈尔的移动城堡</li>
+            <li onclick="copyToClipboard('疯狂动物城')">疯狂动物城</li>
+            <li onclick="copyToClipboard('龙猫')">龙猫</li>
+			<li onclick="copyToClipboard('猫和老鼠系列')">猫和老鼠系列</li>
+            <li onclick="copyToClipboard('魔女宅急便')">魔女宅急便</li>
+            <li onclick="copyToClipboard('天空之城')">天空之城</li>
+            <li onclick="copyToClipboard('幽灵公主')">幽灵公主</li>
+            <li onclick="copyToClipboard('冰川时代系列')">冰川时代系列</li>
+			<li onclick="copyToClipboard('哆啦A梦系列')">哆啦A梦系列</li>
+            <li onclick="copyToClipboard('冰雪奇缘')">冰雪奇缘</li>
+            <li onclick="copyToClipboard('红猪')">红猪</li>
+			<li onclick="copyToClipboard('攻壳机动队')">攻壳机动队</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            // 成功复制后的处理（可选）
+        }).catch(err => {
+            console.error('无法复制文本: ', err);
+        });
+    }
+
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    document.querySelectorAll('li').forEach(item => {
+        const originalBackground = item.style.backgroundColor;
+
+        item.addEventListener('focus', () => {
+            item.style.backgroundColor = getRandomColor();
+        });
+
+        item.addEventListener('blur', () => {
+            item.style.backgroundColor = originalBackground;
+        });
+
+        // For mouse events
+        item.addEventListener('mouseover', () => {
+            item.style.backgroundColor = getRandomColor();
+        });
+
+        item.addEventListener('mouseout', () => {
+            item.style.backgroundColor = originalBackground;
+        });
+    });
+</script>
+
+</body>
+</html>
