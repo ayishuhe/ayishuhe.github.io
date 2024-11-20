@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-	<link rel="icon" href="favicon.png" type="image/x - icon">
+<link rel="icon" href="favicon.png" type="image/x - icon">
 <title>在线记事本</title>
 <style>
     body {
@@ -12,6 +12,12 @@
         width: 100%;
         height: 300px;
         margin-top: 10px;
+    }
+    .file-info {
+        margin-bottom: 10px;
+    }
+    .file-info span {
+        display: block;
     }
     .button-group {
         margin-bottom: 10px;
@@ -25,13 +31,22 @@
     .extracted-text {
         margin-top: 10px;
     }
+    .link {
+        color: red;
+    }
 </style>
 </head>
 <body>
 <h1>在线记事本</h1>
+<div class="file-info" id="fileInfo" style="display:none;">
+    <span id="fileName"></span>
+    <span id="fileSize"></span>
+    <span id="fileSHA1"></span>
+</div>
 <div class="button-group">
     <button onclick="openFile()">打开</button>
     <button onclick="saveFile()">保存</button>
+    <button onclick="compressFile()">压缩</button>
     <button onclick="copyText()">复制</button>
     <button onclick="pasteText()">粘贴</button>
     <button onclick="clearText()">清空</button>
@@ -53,25 +68,43 @@
     <input type="text" id="endMarker">
     <button onclick="extractText()">提取中间文本</button>
 </div>
-<textarea id="editor"></textarea>
+<textarea id="editor" oninput="highlightLinks()"></textarea>
 <div class="extracted-text" style="display:none;">
     <h3>提取的文本</h3>
     <textarea id="extractedEditor" readonly></textarea>
     <button onclick="copyExtractedText()">复制</button>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 <script>
+// 异步函数来计算SHA1值
+async function computeSHA1(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-1', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
+
 function openFile() {
     const input = document.createElement('input');
     input.type = 'file';
-    input.onchange = e => {
+    input.onchange = async e => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('editor').value = e.target.result;
+                highlightLinks(); // 高亮链接
             };
             reader.readAsText(file);
+
+            // 显示文件信息
+            document.getElementById('fileName').textContent = `文件名：${file.name}`;
+            document.getElementById('fileSize').textContent = `文件大小：${file.size} 字节`;
+            const sha1 = await computeSHA1(file);
+            document.getElementById('fileSHA1').textContent = `SHA1：${sha1}`;
+            document.getElementById('fileInfo').style.display = 'block';
         }
     };
     input.click();
@@ -86,6 +119,21 @@ function saveFile() {
     link.click();
 }
 
+function compressFile() {
+    const textToSave = document.getElementById('editor').value;
+    const fileName = document.getElementById('fileName').textContent.split('：')[1] || 'note';
+    const zip = new JSZip();
+    zip.file(fileName + '_ysh.txt', textToSave);
+
+    zip.generateAsync({type: "blob"})
+        .then(function(content) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = fileName + '_ysh.zip';
+            link.click();
+        });
+}
+
 function copyText() {
     const textarea = document.getElementById('editor');
     textarea.select();
@@ -96,6 +144,7 @@ function pasteText() {
     const textarea = document.getElementById('editor');
     navigator.clipboard.readText().then(text => {
         textarea.value += text;
+        highlightLinks(); // 高亮链接
     }).catch(err => {
         alert('无法读取剪贴板内容');
     });
@@ -132,6 +181,7 @@ function replaceText() {
     if (findValue) {
         const newText = text.replace(findValue, replaceValue);
         editor.value = newText;
+        highlightLinks(); // 高亮链接
     } else {
         alert('请输入要查找的文本');
     }
@@ -146,6 +196,7 @@ function replaceAllText() {
     if (findValue) {
         const newText = text.replaceAll(findValue, replaceValue);
         editor.value = newText;
+        highlightLinks(); // 高亮链接
     } else {
         alert('请输入要查找的文本');
     }
@@ -171,7 +222,7 @@ function extractText() {
             document.getElementById('extractedEditor').value = extractedText;
             document.querySelector('.extracted-text').style.display = 'block';
 
-            // Select the first match in the original text
+            // 选中第一个匹配项
             const firstMatchIndex = text.indexOf(startMarker + matches[0] + endMarker);
             if (firstMatchIndex !== -1) {
                 editor.setSelectionRange(firstMatchIndex, firstMatchIndex + startMarker.length + matches[0].length + endMarker.length);
@@ -204,6 +255,18 @@ function printText() {
     printWindow.document.close();
     printWindow.print();
 }
+
+// 高亮链接的函数
+function highlightLinks() {
+    const editor = document.getElementById('editor');
+    const text = editor.value;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const markedText = text.replace(urlRegex, '<span class="link">$&</span>');
+    editor.innerHTML = markedText;
+}
+
+// 初始化高亮链接
+highlightLinks();
 </script>
 </body>
 </html>
