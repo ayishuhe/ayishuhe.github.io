@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="favicon.png" type="image/x - icon">
-<title>双色球号码生成器</title>
+<link rel="icon" href="favicon.png" type="image/x-icon">
+<title>大乐透号码生成器</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -18,12 +18,15 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     background-color: #fff;
     border-radius: 10px;
+    margin-top: 50px;
 }
 h1 {
     font-size: 2em;
-    background: linear-gradient(to right, #ff0000, #800080); /* 红色到紫色渐变 */
+    background: linear-gradient(to right, #ff7e00, #ffcc00); /* 橙色到黄色渐变 */
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-text-fill-color: red; /* 修改为红色 */
+    background-clip: text;
+    color: transparent; /* 确保非Webkit浏览器也能显示红色 */
 }
 .results {
     margin-top: 20px;
@@ -40,7 +43,6 @@ h1 {
     height: 30px;
     line-height: 30px;
     border-radius: 50%;
-    color: #fff;
     text-align: center;
     margin: 0 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -49,11 +51,13 @@ h1 {
     transform: scale(0);
     transition: all 0.6s ease-out;
 }
-.ball.red {
-    background: radial-gradient(circle, #ff4c4c, #b20000);
-}
 .ball.blue {
     background: radial-gradient(circle, #4c8bff, #0000b2);
+    color: #fff; /* 前区蓝色球保持白色文字 */
+}
+.ball.yellow {
+    background: radial-gradient(circle, #ffeb3b, #fbc02d);
+    color: #000; /* 后区黄色球的文字颜色更改为黑色 */
 }
 button {
     padding: 10px 20px;
@@ -98,21 +102,21 @@ button:hover {
 </head>
 <body>
 <div class="container">
-    <h1>双色球号码生成器</h1>
+    <h1>大乐透号码生成器</h1>
     <button onclick="generateNumbers()">生成8组号码</button>
     <div id="results" class="results"></div>
     <div class="info">
-        <h2>双色球游戏规则：</h2>
-        <p>双色球彩票由6个红色球号码和1个蓝色球号码组成。红色球号码从1-33中选择，蓝色球号码从1-16中选择。每期开奖从33个红球中随机抽取6个号码，从16个蓝球中随机抽取1个号码。</p>
+        <h2>大乐透游戏规则：</h2>
+        <p>大乐透彩票由5个前区号码（从1到35中选择）和2个后区号码（从1到12中选择）组成。每期开奖从前区35个号码中随机抽取5个号码，从后区12个号码中随机抽取2个号码。</p>
         <h3>复式投注规则：</h3>
-        <p>复式投注是指在购买彩票时选择超过基本投注规定的数量的号码。例如，在双色球中，可以选择多于6个红色球号码和/或多于1个蓝色球号码进行投注。复式投注会根据所选号码的数量自动组合成多个投注组合，每个组合都符合基本投注的规定。</p>
+        <p>复式投注是指在购买彩票时选择超过基本投注规定的数量的号码。例如，在大乐透中，可以选择多于5个前区号码和/或多于2个后区号码进行投注。复式投注会根据所选号码的数量自动组合成多个投注组合，每个组合都符合基本投注的规定。</p>
         <h3>复式投注中奖计算方式：</h3>
-        <p>复式投注的中奖计算方式与单式投注相同，即需要匹配开奖号码中的相应数量的号码才能中奖。不同的是，复式投注因为包含了更多的号码组合，所以中奖的机会相对更高。具体来说，如果选择了8个红色球号码和2个蓝色球号码进行复式投注，则会产生$C_8^6 \times C_2^1$种不同的投注组合，即28种组合，每一种组合都有可能中奖。</p>
+        <p>复式投注的中奖计算方式与单式投注相同，即需要匹配开奖号码中的相应数量的号码才能中奖。不同的是，复式投注因为包含了更多的号码组合，所以中奖的机会相对更高。具体来说，如果选择了7个前区号码和3个后区号码进行复式投注，则会产生$C_7^5 \times C_3^2$种不同的投注组合，即63种组合，每一种组合都有可能中奖。</p>
         <h2>兑奖有限时效：</h2>
-        <p>双色球彩票的有效兑奖期限为自开奖之日起60天内有效。逾期未兑奖视为弃奖，奖金将纳入公益金。</p>
+        <p>大乐透彩票的有效兑奖期限为自开奖之日起60天内有效。逾期未兑奖视为弃奖，奖金将纳入公益金。</p>
     </div>
     <div class="disclaimer">
-        <p><strong>免责声明：</strong>本页面提供的信息仅供参考，具体的双色球游戏规则和中奖计算方式以及兑奖时效请以官方公告为准。</p>
+        <p><strong>免责声明：</strong>本页面提供的信息仅供参考，具体的大乐透游戏规则和中奖计算方式以及兑奖时效请以官方公告为准。</p>
     </div>
 </div>
 
@@ -125,13 +129,15 @@ function generateNumbers() {
         const resultDiv = document.createElement('div');
         resultDiv.className = 'result';
 
-        const redBalls = generateUniqueRandomNumbers(6, 1, 33).sort((a, b) => a - b);
-        for (const number of redBalls) {
-            createBall(resultDiv, number, 'ball red');
+        const frontBalls = generateUniqueRandomNumbers(5, 1, 35).sort((a, b) => a - b);
+        for (const number of frontBalls) {
+            createBall(resultDiv, number, 'ball blue'); // 前区球设置为蓝色
         }
 
-        const blueBall = Math.floor(Math.random() * 16) + 1;
-        createBall(resultDiv, blueBall, 'ball blue');
+        const backBalls = generateUniqueRandomNumbers(2, 1, 12).sort((a, b) => a - b);
+        for (const number of backBalls) {
+            createBall(resultDiv, number, 'ball yellow'); // 后区球设置为黄色
+        }
 
         resultsDiv.appendChild(resultDiv);
     }
