@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon.png" type="image/x - icon">
-    <title>必看追剧50+</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <title>必看追剧50部</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -83,77 +83,55 @@
     
     <div class="section">
         <h2>连续剧</h2>
-        <ul>
-            <li onclick="copyToClipboard('豪杰春香')">豪杰春香</li>
-            <li onclick="copyToClipboard('琅琊榜')">琅琊榜</li>
-            <li onclick="copyToClipboard('追')">追</li>
-            <li onclick="copyToClipboard('搞笑一家人')">搞笑一家人</li>
-            <li onclick="copyToClipboard('憨豆先生')">憨豆先生</li>
-            <li onclick="copyToClipboard('白夜追凶')">白夜追凶</li>
-            <li onclick="copyToClipboard('山花烂漫时')">山花烂漫时</li>
-            <li onclick="copyToClipboard('九部的检察官')">九部的检察官</li>
-        </ul>
+        <ul id="anime-series"></ul>
     </div>
 
     <div class="section">
         <h2>电影</h2>
-        <ul>
-            <li onclick="copyToClipboard('唐人街探案系列')">唐人街探案系列</li>
-            <li onclick="copyToClipboard('战狼2')">战狼2</li>
-            <li onclick="copyToClipboard('流浪地球系列')">流浪地球系列</li>
-			<li onclick="copyToClipboard('憨豆先生系列')">憨豆先生系列</li>
-            <li onclick="copyToClipboard('我不是药神')">我不是药神</li>
-            <li onclick="copyToClipboard('黑客帝国系列')">黑客帝国系列</li>
-            <li onclick="copyToClipboard('湄公河行动')">湄公河行动</li>
-            <li onclick="copyToClipboard('疯狂的石头')">疯狂的石头</li>
-            <li onclick="copyToClipboard('让子弹飞')">让子弹飞</li>
-            <li onclick="copyToClipboard('星际迷航系列')">星际迷航系列</li>
-            <li onclick="copyToClipboard('星球大战系列')">星球大战系列</li>
-            <li onclick="copyToClipboard('肖申克的救赎')">肖申克的救赎</li>
-            <li onclick="copyToClipboard('异形系列')">异形系列</li>
-            <li onclick="copyToClipboard('泰坦尼克号')">泰坦尼克号</li>
-            <li onclick="copyToClipboard('阿甘正传')">阿甘正传</li>
-            <li onclick="copyToClipboard('这个杀手不太冷')">这个杀手不太冷</li>
-            <li onclick="copyToClipboard('功夫')">功夫</li>
-            <li onclick="copyToClipboard('楚门的世界')">楚门的世界</li>
-            <li onclick="copyToClipboard('当幸福来敲门')">当幸福来敲门</li>
-            <li onclick="copyToClipboard('盗梦空间')">盗梦空间</li>
-            <li onclick="copyToClipboard('无双')">无双</li>
-            <li onclick="copyToClipboard('海上钢琴师')">海上钢琴师</li>
-            <li onclick="copyToClipboard('西虹市首富')">西虹市首富</li>
-            <li onclick="copyToClipboard('触不可及')">触不可及</li>
-            <li onclick="copyToClipboard('三傻大闹宝莱坞')">三傻大闹宝莱坞</li>
-            <li onclick="copyToClipboard('哈利·波特系列')">哈利·波特系列</li>
-            <li onclick="copyToClipboard('攀登者')">攀登者</li>
-            <li onclick="copyToClipboard('蝙蝠侠系列')">蝙蝠侠系列</li>
-			<li onclick="copyToClipboard('少年派的奇幻漂流')">少年派的奇幻漂流</li>
-			<li onclick="copyToClipboard('拯救大兵瑞恩')">拯救大兵瑞恩</li>
-			<li onclick="copyToClipboard('头号玩家')">头号玩家</li>
-			<li onclick="copyToClipboard('本杰明·巴顿奇事')">本杰明·巴顿奇事</li>
-			<li onclick="copyToClipboard('生化危机系列')">生化危机系列</li>
-			<li onclick="copyToClipboard('X战警系列')">X战警系列</li>
-			<li onclick="copyToClipboard('超能陆战队')">超能陆战队</li>
-			<li onclick="copyToClipboard('钢铁侠系列')">钢铁侠系列</li>
-			<li onclick="copyToClipboard('复仇者联盟系列')">复仇者联盟系列</li>
-			<li onclick="copyToClipboard('变形金刚系列')">变形金刚系列</li>
-			<li onclick="copyToClipboard('加勒比海盗系列')">加勒比海盗系列</li>
-			<li onclick="copyToClipboard('终结者系列')">终结者系列</li>
-			<li onclick="copyToClipboard('疯狂的麦克斯系列')">疯狂的麦克斯系列</li>
-			<li onclick="copyToClipboard('灵魂战车系列')">灵魂战车系列</li>
-			<li onclick="copyToClipboard('黑衣人系列')">黑衣人系列</li>
-			<li onclick="copyToClipboard('尖峰时刻系列')">尖峰时刻系列</li>
-			<li onclick="copyToClipboard('周处除三害')">周处除三害</li>
-			<li onclick="copyToClipboard('蜘蛛侠系列')">蜘蛛侠系列</li>
-        </ul>
+        <ul id="anime-movies"></ul>
     </div>
 </div>
 
 <script>
+    async function loadAnimeData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.text();
+            return data.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        } catch (error) {
+            console.error('Failed to load anime data:', error);
+            return [];
+        }
+    }
+
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
             // 成功复制后的处理（可选）
+            alert('已复制到剪贴板：' + text);
         }).catch(err => {
             console.error('无法复制文本: ', err);
+        });
+    }
+
+    function populateList(listId, items) {
+        const listElement = document.getElementById(listId);
+
+        items.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.textContent = item;
+            listItem.onclick = () => copyToClipboard(item);
+
+            // 添加鼠标悬停颜色变化效果
+            listItem.addEventListener('mouseover', () => {
+                listItem.style.backgroundColor = getRandomColor();
+            });
+
+            listItem.addEventListener('mouseout', () => {
+                listItem.style.backgroundColor = '#f9f9f9';
+            });
+
+            listElement.appendChild(listItem);
         });
     }
 
@@ -166,26 +144,18 @@
         return color;
     }
 
-    document.querySelectorAll('li').forEach(item => {
-        const originalBackground = item.style.backgroundColor;
+    async function initialize() {
+        const [series, movies] = await Promise.all([
+            loadAnimeData('idy/tv/anime-series.txt'),
+            loadAnimeData('idy/tv/anime-movies.txt')
+        ]);
 
-        item.addEventListener('focus', () => {
-            item.style.backgroundColor = getRandomColor();
-        });
+        populateList('anime-series', series);
+        populateList('anime-movies', movies);
+    }
 
-        item.addEventListener('blur', () => {
-            item.style.backgroundColor = originalBackground;
-        });
+    window.onload = initialize;
 
-        // For mouse events
-        item.addEventListener('mouseover', () => {
-            item.style.backgroundColor = getRandomColor();
-        });
-
-        item.addEventListener('mouseout', () => {
-            item.style.backgroundColor = originalBackground;
-        });
-    });
 </script>
 
 </body>
