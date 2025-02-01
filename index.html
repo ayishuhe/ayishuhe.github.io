@@ -1,58 +1,231 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" href="favicon.png" type="image/x - icon">
     <title>2026春节倒计时</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            /* 使用红色和金色作为背景色 */
+            background: linear-gradient(45deg, #ffcc33, #ff3333);
+            color: white;
+            position: relative;
         }
-        #countdown {
-            font-size: 3em;
+
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            max-width: 80%; /* 限制最大宽度以适应小屏幕 */
+            margin: 0 auto; /* 居中显示 */
+        }
+
+        h1,
+        h2 {
+            font-weight: bold;
+            margin: 0;
+            color: #333;
+            line-height: 1.2; /* 调整行高以改善可读性 */
+        }
+
+        h1 {
+            font-size: 2.5em; /* 增大标题大小 */
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.2em; /* 调整副标题大小 */
+            margin-bottom: 20px;
+            color: #e74c3c; /* 更鲜艳的颜色 */
+        }
+
+        #countdown,
+        #currentDateTime {
+            font-size: 1.5em; /* 统一倒计时和当前时间显示大小 */
             color: #e74c3c;
+            margin-top: 20px;
+            line-height: 1.5; /* 提高行高，增加可读性 */
+        }
+        
+        /* 新增：段落样式 */
+        p {
+            font-size: 1em;
+            color: #555;
+            margin: 10px 0;
         }
     </style>
 </head>
-<body>
-	<h1>春节倒计时</h1>
-	<h2>2026丙午马年春节时间：2026年2月17日 星期二 农历正月初一</h2>
-    <h1>距离2026年春节还有</h1>
-    <div id="countdown"></div>
 
+<body>
+    <div class="container">
+        <h1>春节倒计时</h1>
+        <p>2026丙午马年春节时间：</p>
+        <h2>2026年2月17日 星期二 农历正月初一</h2>
+        <div id="countdown"></div>
+        <!-- 当前日期时间显示 -->
+        <div id="currentDateTime"></div>
+    </div>
+
+    <!-- Particles.js canvas -->
+    <div id="particles-js"></div>
+
+    <!-- 使用CDN引用particles.js库 -->
+    <script src="js/particles.min.js"></script>
     <script>
-        // 目标日期：2026年2月17日 00:00:00
         const targetDate = new Date("Feb 17, 2026 00:00:00").getTime();
 
         function updateCountdown() {
-            // 获取当前时间
             const now = new Date().getTime();
-            
-            // 计算时间差
             const diff = targetDate - now;
 
-            // 如果时间差小于0，则倒计时结束
             if (diff < 0) {
                 document.getElementById("countdown").innerText = "春节已经到来！";
                 return;
             }
 
-            // 将时间差转换为天、小时、分钟和秒
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // 更新页面上的倒计时显示
             document.getElementById("countdown").innerText = `${days}天 ${hours}小时 ${minutes}分钟 ${seconds}秒`;
         }
 
-        // 立即调用一次updateCountdown函数，然后每秒调用一次
         updateCountdown();
         setInterval(updateCountdown, 1000);
+
+        // 初始化particles.js
+        particlesJS('particles-js', {
+            "particles": {
+                "number": {
+                    "value": 100,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": ["#ffcc33", "#ff3333", "#ffffff"]
+                },
+                "shape": {
+                    "type": ["circle", "star"],
+                    "stroke": {
+                        "width": 1,
+                        "color": "#fff"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    }
+                },
+                "opacity": {
+                    "value": 0.8,
+                    "random": false,
+                    "anim": {
+                        "enable": true,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 5,
+                    "random": true,
+                    "anim": {
+                        "enable": true,
+                        "speed": 10,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": false
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 4,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 140,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200,
+                        "duration": 0.4
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    },
+                    "remove": {
+                        "particles_nb": 2
+                    }
+                }
+            },
+            "retina_detect": true
+        });
+
+        // 动态显示当前日期和时间
+        function updateCurrentDateTime() {
+            const now = new Date();
+            document.getElementById('currentDateTime').innerText = `当前时间：${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日，星期${'日一二三四五六'[now.getDay()]} ${String(now.getHours()).padStart(2, '0')}时${String(now.getMinutes()).padStart(2, '0')}分`;
+        }
+
+        updateCurrentDateTime();
+        setInterval(updateCurrentDateTime, 1000);
     </script>
 </body>
+
 </html>
