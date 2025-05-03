@@ -3,62 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found</title>
+    <title>404 - 折纸谜失</title>
     <style>
-        body, html {
+        :root {
+            --paper-white: #f0f0f0;
+            --accent-orange: #FF6B6B;
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        body {
             margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
+            font-family: 'Helvetica Neue', sans-serif;
+            perspective: 1000px;
+        }
+
+        .scene {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            transform-style: preserve-3d;
+        }
+
+        .paper-plane {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .paper {
+            background: var(--paper-white);
+            position: absolute;
+            border-radius: 3px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .plane-body {
+            width: 200px;
+            height: 200px;
+            transform: rotate(45deg) translateZ(20px);
+        }
+
+        .wing {
+            width: 80px;
+            height: 120px;
+            background: var(--accent-orange);
+        }
+
+        .left-wing {
+            transform: rotate(-30deg) translate(-130px, 80px);
+        }
+
+        .right-wing {
+            transform: rotate(30deg) translate(130px, 80px);
+        }
+
+        .message-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
             text-align: center;
-            background-color: #f5f5f5; /* 浅灰色背景 */
-            font-family: Arial, sans-serif;
-            color: #333; /* 深灰色文字 */
+            color: #2d3436;
         }
 
         h1 {
-            font-size: 10em;
-            color: #666; /* 中等灰色 */
+            font-size: 4rem;
             margin: 0;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s ease;
         }
 
         p {
-            font-size: 2em;
-            color: #555; /* 稍深的灰色 */
+            font-size: 1.2rem;
             margin: 1rem 0;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s ease 0.2s;
         }
 
-        a.button {
-            display: inline-block;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            color: #fff;
-            background-color: #999; /* 按钮为灰色 */
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+        .action-btn {
+            padding: 12px 30px;
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s ease 0.4s;
+            box-shadow: 0 3px 6px var(--shadow-color);
         }
 
-        a.button:hover {
-            background-color: #777; /* 鼠标悬停时稍深的灰色 */
+        .scene:hover .message-container * {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotateX(-5deg) rotateY(5deg); }
+            50% { transform: translateY(-20px) rotateX(5deg) rotateY(-5deg); }
+        }
+
+        /* 折纸动效 */
+        .scene:hover .plane-body {
+            transform: rotate(45deg) translateZ(20px) rotateX(15deg);
+        }
+
+        .scene:hover .left-wing {
+            transform: rotate(-45deg) translate(-130px, 80px);
+        }
+
+        .scene:hover .right-wing {
+            transform: rotate(45deg) translate(130px, 80px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .scene {
+                transform: scale(0.8);
+            }
         }
     </style>
 </head>
 <body>
-    <div>
-        <h1>404</h1>
-        <p>Page not found.</p>
-        <a href="/" class="button">Return Home</a>
+    <div class="scene">
+        <div class="paper-plane">
+            <div class="paper plane-body"></div>
+            <div class="paper wing left-wing"></div>
+            <div class="paper wing right-wing"></div>
+        </div>
+        <div class="message-container">
+            <h1>404</h1>
+            <p>页面像折纸般飞走了</p>
+            <button class="action-btn">展开新旅程</button>
+        </div>
     </div>
 
     <script>
-        // 自动跳转脚本
-        setTimeout(function() {
-            window.location.href = "/";
-        }, 15000); // 15秒后跳转
+        // 增加纸张交互
+        document.querySelectorAll('.paper').forEach(paper => {
+            paper.addEventListener('mouseenter', () => {
+                paper.style.transform += ' translateZ(30px)';
+            });
+            
+            paper.addEventListener('mouseleave', () => {
+                paper.style.transform = paper.style.transform.replace(' translateZ(30px)', '');
+            });
+        });
+
+        // 按钮点击动效
+        document.querySelector('.action-btn').addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 300);
+        });
     </script>
 </body>
 </html>
