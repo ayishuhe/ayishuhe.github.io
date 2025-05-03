@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H123</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --play: #10b981;
+            --bg-color: #f8fafc;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            max-width: 95vw;
+            max-height: 95vh;
+        }
+
+        #videoPlayer {
+            display: block;
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent 0%, rgba(0,0,0,0.6) 100%);
+            padding: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .video-container:hover .controls {
+            opacity: 1;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+
+        /* 安全提示样式 */
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            display: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+        }
+
+        /* 安全按钮样式 */
+        .alert-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            padding: 12px 32px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            margin-top: 1.5rem;
+        }
+
+        .alert-btn:hover {
+            transform: scale(1.05) !important;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 安全提示 -->
+    <div class="alert-overlay" id="alertOverlay">
+        <div class="alert-box">
+            <div style="font-size:3rem;color:#ef4444">⚠️</div>
+            <h3 style="margin:1rem 0">安全限制</h3>
+            <p>检测到违规操作，请遵守使用规范</p>
+            <button class="btn alert-btn" onclick="closeAlert()">
+                <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:8px">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-8h2v6h-2V9z"/>
+                </svg>
+                我已了解
+            </button>
+        </div>
+    </div>
+
+    <!-- 视频容器 -->
+    <div class="video-container" id="videoContainer">
+        <video id="videoPlayer"></video>
+        <div class="controls">
+            <button class="btn" onclick="loadPreviousVideo()">
+                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                上一个
+            </button>
+            <button class="btn" onclick="togglePlayPause()" id="playButton">
+                <svg width="20" height="20" viewBox="0 0 24 24"><path id="playPauseIcon" fill="currentColor" d="M8 5v14l11-7z"/></svg>
+                <span>播放</span>
+            </button>
+            <button class="btn" onclick="loadNextVideo()">
+                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                下一个
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 安全提示系统
+        let alertVisible = false;
+        function showAlert() {
+            if(alertVisible) return;
+            alertVisible = true;
+            const overlay = document.getElementById('alertOverlay');
+            overlay.style.display = 'block';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+        }
+
+        function closeAlert() {
+            alertVisible = false;
+            const overlay = document.getElementById('alertOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 300);
+        }
+
+        // 安全事件监听
+        document.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            showAlert();
+        });
+
+        document.addEventListener('keydown', e => {
+            const forbiddenKeys = [
+                'F12',
+                'Control+Shift+I',
+                'Control+Shift+J',
+                'Control+Shift+C'
+            ];
+            const keyCombination = [
+                e.ctrlKey ? 'Control+' : '',
+                e.shiftKey ? 'Shift+' : '',
+                e.key
+            ].join('').replace(/\+$/, '');
+
+            if(forbiddenKeys.includes(e.key) || forbiddenKeys.includes(keyCombination)) {
+                e.preventDefault();
+                showAlert();
+            }
+        });
+
+        // 视频尺寸适配
+        const videoContainer = document.getElementById('videoContainer');
+        const videoPlayer = document.getElementById('videoPlayer');
+
+        function adjustVideoSize() {
+            const videoRatio = videoPlayer.videoWidth / videoPlayer.videoHeight;
+            const windowRatio = window.innerWidth / window.innerHeight;
+            
+            if (videoRatio > windowRatio) {
+                videoContainer.style.width = '95vw';
+                videoContainer.style.height = `${95 / videoRatio}vw`;
+            } else {
+                videoContainer.style.height = '95vh';
+                videoContainer.style.width = `${95 * videoRatio}vh`;
+            }
+        }
+
+        // 视频事件处理
+        let isInitialLoad = true;
+        videoPlayer.addEventListener('loadedmetadata', () => {
+            adjustVideoSize();
+            if(isInitialLoad) {
+                videoPlayer.play().catch(() => {
+                    // 处理自动播放限制
+                    document.addEventListener('click', () => videoPlayer.play(), { once: true });
+                });
+                isInitialLoad = false;
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if(videoPlayer.readyState > 0) {
+                adjustVideoSize();
+            }
+        });
+
+        // 播放器功能
+        let videoLinks = [];
+        let currentIndex = -1;
+
+        async function fetchVideoLinks() {
+            try {
+                const response = await fetch('XJJ/video_links.txt');
+                const text = await response.text();
+                videoLinks = text.split('\n').filter(link => link.trim());
+                if(videoLinks.length) {
+                    currentIndex = Math.floor(Math.random() * videoLinks.length);
+                    await loadCurrentVideo();
+                }
+            } catch (error) {
+                console.error('视频加载失败');
+            }
+        }
+
+        async function loadCurrentVideo() {
+            videoPlayer.src = videoLinks[currentIndex];
+            try {
+                await videoPlayer.play();
+            } catch (e) {
+                // 自动播放失败时添加点击事件监听
+                document.addEventListener('click', () => videoPlayer.play(), { once: true });
+            }
+        }
+
+        function togglePlayPause() {
+            videoPlayer.paused ? videoPlayer.play() : videoPlayer.pause();
+            const icon = document.getElementById('playPauseIcon');
+            icon.setAttribute('d', videoPlayer.paused ? 'M8 5v14l11-7z' : 'M6 4h4v16H6zm8 0h4v16h-4z');
+        }
+
+        async function loadPreviousVideo() {
+            currentIndex = (currentIndex - 1 + videoLinks.length) % videoLinks.length;
+            await loadCurrentVideo();
+        }
+
+        async function loadNextVideo() {
+            currentIndex = (currentIndex + 1) % videoLinks.length;
+            await loadCurrentVideo();
+        }
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', fetchVideoLinks);
+    </script>
+</body>
+</html>
