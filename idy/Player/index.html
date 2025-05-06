@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多媒体播放器</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden; /* 防止横向滚动 */
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding-top: 2%;  
+            padding-bottom: 2%;  
+            box-sizing: border-box; 
+        }
+        .player {
+            flex: 3;
+            max-height: 60vh; 
+            background-color: #000;
+            position: relative; 
+        }
+        .player video, .player img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+        }
+        .playlist {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #f4f4f4;
+            padding: 10px;
+            position: relative; 
+        }
+        .media-item {
+            padding: 5px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .media-item:hover {
+            background-color: #ddd;
+        }
+        .navigation-links {
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        .navigation-links.up-link { /* 上一级链接背景色 */
+            background-color: #d7f3e3; /* 淡绿色 */
+        }
+        .navigation-links.home-link { /* Home Player链接背景色 */
+            background-color: #f8d7da; /* 淡红色 */
+        }
+        .current-info {
+            padding: 10px;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        button {
+            margin-left: 10px;
+        }
+        .file-size {
+            color: gray;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="current-info" id="currentInfo">总文件数: 0 | 当前播放第 0 个文件</div>
+        <div class="player" id="player">
+            <video controls playsinline id="videoPlayer"></video>
+            <img id="imgPlayer" style="display: none;" alt="Image Player">
+        </div>
+        <div class="playlist" id="playlist"></div>
+    </div>
+
+    <script>
+        let currentPlaying = null;
+        let mediaItems = [];
+        let currentPath = '';
+        let isMuted = true; // 默认静音状态
+        const playbackPositions = JSON.parse(localStorage.getItem('playbackPositions')) || {}; // 初始化播放进度
+
+        function loadDirectory(path) {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", `getDirectoryContents.php?dir=${encodeURIComponent(path)}`, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    playlist.innerHTML = ''; // 清空现有列表
+                    mediaItems = [];
+
+                    // 添加返回上一级链接
+                    if (path !== '.') {
+                        const upLink = document.createElement('div');
+                        upLink.className = 'navigation-links up-link'; // 设置类名以应用淡绿色背景
+                        upLink.textContent = '上一级';
+                        upLink.onclick = () => loadDirectory(path.split('/').slice(0, -1).join('/') || '.');
+                        playlist.appendChild(upLink);
+                    }
+
+                    let index = 1;
+                    response.directories.forEach((dirName) => {
+                        createMediaItem(dirName, `${path}/${dirName}`, true, index++, null);
+                    });
+                    response.files.forEach((file) => {
+                        createMediaItem(file.name, `${path}/${file.name}`, false, index++, file.size);
+                    });
+
+                    // 添加返回主页链接
+                    const homeLink = document.createElement('div');
+                    homeLink.className = 'navigation-links home-link'; // 设置类名以应用淡红色背景
+                    homeLink.textContent = 'Home Player';
+                    homeLink.onclick = () => loadDirectory('.');
+                    playlist.appendChild(homeLink);
+
+                    currentPath = path;
+                }
+            };
+            xhr.send();
+        }
+
+        function getFileTypeColor(type) {
+            switch (type.toLowerCase()) {
+                case 'mp4':
+                case 'mov': // 支持MOV格式
+                case 'avi':
+                case 'mkv':
+                case 'wmv':
+                    return 'green'; // 视频类型默认颜色设为绿色
+                default:
+                    return 'gray'; // 其他类型的默认颜色
+            }
+        }
+
+        function applyMuteState(videoElement) {
+            if (videoElement) {
+                videoElement.muted = isMuted; // 应用当前的静音状态
+            }
+        }
+
+        function hideAllPlayers() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const imgPlayer = document.getElementById('imgPlayer');
+
+            // 停止视频播放并隐藏
+            videoPlayer.pause();
+            videoPlayer.style.display = 'none';
+
+            // 隐藏图片
+            imgPlayer.style.display = 'none';
+        }
+
+        function createMediaItem(name, path, isDir, index, size) {
+            const item = document.createElement('div');
+            let type = isDir ? 'directory' : name.split('.').pop().toLowerCase();
+            item.className = 'media-item' + (isDir ? ' directory' : '');
+            item.style.color = isDir ? '#996600' : getFileTypeColor(type); // 目录颜色设置为暗黄色
+
+            const displayName = document.createElement('span');
+            displayName.textContent = `${index}. ${name}`;
+            item.appendChild(displayName);
+
+            if (!isDir) {
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = '下载';
+                downloadBtn.onclick = () => downloadFile(path);
+                item.appendChild(downloadBtn);
+            }
+
+            item.onclick = function(event) {
+                if (isDir) {
+                    loadDirectory(path);
+                } else {
+                    if (currentPlaying) {
+                        currentPlaying.classList.remove('active');
+                        currentPlaying.style.color = getFileTypeColor(currentPlaying.innerText.split('.').slice(-1)[0].toLowerCase());
+                    }
+                    item.classList.add('active');
+                    item.style.color = 'blue'; 
+                    currentPlaying = item;
+                    loadMedia(path, type);
+                    updateCurrentInfo(mediaItems.indexOf(item) + 1);
+                    scrollToPlayingItem(); // 自动滚动到当前播放项
+                }
+            };
+
+            playlist.appendChild(item);
+            mediaItems.push(item);
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024,
+                  sizes = ['B', 'KB', 'MB', 'GB', 'TB'],
+                  i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function downloadFile(file) {
+            const link = document.createElement('a');
+            link.href = file;
+            link.download = '';
+            ['click', 'touchstart'].forEach(eventType => {
+                link.addEventListener(eventType, (e) => {
+                    e.preventDefault();
+                    if (navigator.msSaveOrOpenBlob) { // 兼容IE
+                        navigator.msSaveOrOpenBlob(link.href);
+                    } else {
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                }, false);
+            });
+            link.dispatchEvent(new MouseEvent('click'));
+        }
+
+        function loadMedia(file, type) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const imgPlayer = document.getElementById('imgPlayer');
+
+            // 隐藏并停止所有媒体播放器
+            hideAllPlayers();
+
+            if (['mp4', 'mov', 'avi', 'mkv', 'wmv'].includes(type)) { // 扩展支持的视频格式
+                videoPlayer.src = file;
+                const savedTime = playbackPositions[file] || 0;
+                if (savedTime) {
+                    videoPlayer.currentTime = savedTime;
+                }
+                videoPlayer.play();
+                videoPlayer.style.display = 'block';
+                applyMuteState(videoPlayer); // 确保应用静音状态
+
+                // 监听播放时间更新事件，保存播放进度
+                videoPlayer.addEventListener('timeupdate', () => {
+                    playbackPositions[file] = videoPlayer.currentTime;
+                    localStorage.setItem('playbackPositions', JSON.stringify(playbackPositions));
+                });
+            } else {
+                imgPlayer.src = file;
+                imgPlayer.onload = () => {
+                    imgPlayer.style.display = 'block';
+                };
+            }
+        }
+
+        function updateCurrentInfo(index) {
+            const currentInfo = document.getElementById('currentInfo');
+            currentInfo.textContent = `总文件数: ${mediaItems.length} | 当前播放第 ${index} 个文件`;
+            currentInfo.onclick = () => scrollToPlayingItem();
+        }
+
+        function scrollToPlayingItem() {
+            if (currentPlaying) {
+                currentPlaying.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDirectory('.'); // 加载根目录
+            const videoPlayer = document.getElementById('videoPlayer');
+
+            // 监听音量变化事件以更新静音状态
+            videoPlayer.addEventListener('volumechange', () => {
+                isMuted = videoPlayer.muted || videoPlayer.volume === 0;
+            });
+
+            // 默认设置为静音
+            applyMuteState(videoPlayer); // 初始加载时应用静音状态
+        });
+    </script>
+</body>
+</html>
