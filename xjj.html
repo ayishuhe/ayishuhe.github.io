@@ -3,35 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H123</title>
+    <title>优雅视频播放器</title>
     <style>
         :root {
             --primary: #6366f1;
             --secondary: #8b5cf6;
             --play: #10b981;
+            --pause: #ef4444;
             --bg-color: #f8fafc;
+            --dark-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--bg-color);
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #e2e8f0 100%);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             overflow: hidden;
+            color: var(--dark-bg);
+        }
+
+        /* 加载动画 */
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--primary);
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .video-container {
             position: relative;
             background: #000;
-            border-radius: 12px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
             max-width: 95vw;
             max-height: 95vh;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         #videoPlayer {
@@ -41,53 +90,143 @@
             cursor: pointer;
         }
 
+        /* 中央播放按钮 */
+        .center-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 5;
+            backdrop-filter: blur(4px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .center-play-btn:hover {
+            background: var(--primary);
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .center-play-btn svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+            margin-left: 5px;
+        }
+
+        /* 控制栏样式优化 */
         .controls {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent 0%, rgba(0,0,0,0.6) 100%);
-            padding: 1.5rem;
+            background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+            padding: 2rem 1.5rem 1.5rem;
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(8px);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            transform: translateY(10px);
         }
 
         .video-container:hover .controls {
             opacity: 1;
+            transform: translateY(0);
         }
 
         .btn {
-            padding: 0.8rem 1.5rem;
+            padding: 0.8rem 1.8rem;
             border: none;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: var(--transition);
             display: inline-flex;
             align-items: center;
             gap: 0.8rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .btn:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* 安全提示样式 */
+        .btn.play {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .btn.play:hover {
+            background: rgba(16, 185, 129, 0.3);
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* 进度条样式 */
+        .progress-container {
+            position: absolute;
+            bottom: 5.5rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .progress-container:hover {
+            height: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* 时间显示 */
+        .time-display {
+            position: absolute;
+            bottom: 2rem;
+            left: 1.5rem;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-family: monospace;
+        }
+
+        /* 安全提示样式优化 */
         .alert-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
             display: none;
             z-index: 1000;
             opacity: 0;
@@ -98,38 +237,94 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255,255,255,0.95);
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
             text-align: center;
-            max-width: 400px;
+            max-width: 450px;
+            width: 90%;
+            transition: transform 0.3s ease;
         }
 
-        /* 安全按钮样式 */
+        .alert-overlay.show .alert-box {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .alert-icon {
+            font-size: 4rem;
+            color: #ef4444;
+            margin-bottom: 1rem;
+        }
+
+        .alert-title {
+            font-size: 1.5rem;
+            color: #dc2626;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .alert-message {
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        /* 安全按钮样式优化 */
         .alert-btn {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-            padding: 12px 32px;
-            border-radius: 8px;
-            border: 2px solid rgba(255,255,255,0.3);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-            margin-top: 1.5rem;
+            padding: 14px 36px;
+            border-radius: 12px;
+            border: none !important;
+            box-shadow: 0 8px 15px rgba(239, 68, 68, 0.2);
+            margin-top: 1rem;
+            font-weight: 600;
+            font-size: 1.05rem;
         }
 
         .alert-btn:hover {
             transform: scale(1.05) !important;
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .controls {
+                padding: 1.5rem 1rem 1rem;
+                gap: 0.8rem;
+            }
+            
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .center-play-btn {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .alert-box {
+                padding: 2rem 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 加载动画 -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p>加载视频中...</p>
+    </div>
+
     <!-- 安全提示 -->
     <div class="alert-overlay" id="alertOverlay">
         <div class="alert-box">
-            <div style="font-size:3rem;color:#ef4444">⚠️</div>
-            <h3 style="margin:1rem 0">安全限制</h3>
-            <p>检测到违规操作，请遵守使用规范</p>
+            <div class="alert-icon">⚠️</div>
+            <h3 class="alert-title">安全限制</h3>
+            <p class="alert-message">检测到违规操作，请遵守使用规范，禁止尝试调试或下载视频内容。</p>
             <button class="btn alert-btn" onclick="closeAlert()">
                 <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:8px">
                     <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-8h2v6h-2V9z"/>
@@ -141,24 +336,51 @@
 
     <!-- 视频容器 -->
     <div class="video-container" id="videoContainer">
+        <!-- 中央播放按钮 -->
+        <div class="center-play-btn" id="centerPlayBtn" onclick="togglePlayPause()">
+            <svg viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+        </div>
+        
         <video id="videoPlayer"></video>
+        
+        <!-- 进度条 -->
+        <div class="progress-container" id="progressContainer" onclick="seekVideo(event)">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <!-- 时间显示 -->
+        <div class="time-display" id="timeDisplay">00:00 / 00:00</div>
+        
         <div class="controls">
             <button class="btn" onclick="loadPreviousVideo()">
-                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
                 上一个
             </button>
-            <button class="btn" onclick="togglePlayPause()" id="playButton">
-                <svg width="20" height="20" viewBox="0 0 24 24"><path id="playPauseIcon" fill="currentColor" d="M8 5v14l11-7z"/></svg>
-                <span>播放</span>
+            <button class="btn play" onclick="togglePlayPause()" id="playButton">
+                <svg width="20" height="20" viewBox="0 0 24 24"><path id="playPauseIcon" d="M8 5v14l11-7z"/></svg>
+                <span id="playButtonText">播放</span>
             </button>
             <button class="btn" onclick="loadNextVideo()">
-                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
                 下一个
             </button>
         </div>
     </div>
 
     <script>
+        // DOM元素
+        const loader = document.getElementById('loader');
+        const videoContainer = document.getElementById('videoContainer');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const centerPlayBtn = document.getElementById('centerPlayBtn');
+        const playButtonText = document.getElementById('playButtonText');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        
         // 安全提示系统
         let alertVisible = false;
         function showAlert() {
@@ -166,6 +388,7 @@
             alertVisible = true;
             const overlay = document.getElementById('alertOverlay');
             overlay.style.display = 'block';
+            overlay.classList.add('show');
             setTimeout(() => overlay.style.opacity = '1', 10);
         }
 
@@ -173,6 +396,7 @@
             alertVisible = false;
             const overlay = document.getElementById('alertOverlay');
             overlay.style.opacity = '0';
+            overlay.classList.remove('show');
             setTimeout(() => overlay.style.display = 'none', 300);
         }
 
@@ -184,28 +408,69 @@
 
         document.addEventListener('keydown', e => {
             const forbiddenKeys = [
-                'F12',
+                'F12', 'F1', 'F2', 'F3',
                 'Control+Shift+I',
                 'Control+Shift+J',
-                'Control+Shift+C'
+                'Control+Shift+C',
+                'Meta+Shift+I', // Mac系统
+                'Meta+Option+I'  // Mac系统
             ];
-            const keyCombination = [
-                e.ctrlKey ? 'Control+' : '',
-                e.shiftKey ? 'Shift+' : '',
-                e.key
-            ].join('').replace(/\+$/, '');
+            
+            const modifiers = [];
+            if (e.ctrlKey || e.metaKey) modifiers.push('Control');
+            if (e.shiftKey) modifiers.push('Shift');
+            if (e.altKey) modifiers.push('Option');
+            
+            const keyCombination = [...modifiers, e.key].join('+').replace(/\+$/, '');
 
             if(forbiddenKeys.includes(e.key) || forbiddenKeys.includes(keyCombination)) {
                 e.preventDefault();
                 showAlert();
             }
+            
+            // 空格键控制播放暂停（合法操作）
+            if (e.key === ' ' && !alertVisible) {
+                e.preventDefault();
+                togglePlayPause();
+            }
+            
+            // 左右方向键快进快退
+            if (e.key === 'ArrowRight' && !alertVisible) {
+                e.preventDefault();
+                videoPlayer.currentTime = Math.min(videoPlayer.currentTime + 10, videoPlayer.duration);
+            }
+            if (e.key === 'ArrowLeft' && !alertVisible) {
+                e.preventDefault();
+                videoPlayer.currentTime = Math.max(videoPlayer.currentTime - 10, 0);
+            }
         });
 
-        // 视频尺寸适配
-        const videoContainer = document.getElementById('videoContainer');
-        const videoPlayer = document.getElementById('videoPlayer');
+        // 格式化时间 (秒 -> MM:SS)
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '00:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
 
+        // 更新进度条和时间显示
+        function updateProgress() {
+            const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+            timeDisplay.textContent = `${formatTime(videoPlayer.currentTime)} / ${formatTime(videoPlayer.duration)}`;
+        }
+
+        // 视频进度跳转
+        function seekVideo(e) {
+            const rect = progressContainer.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            videoPlayer.currentTime = pos * videoPlayer.duration;
+        }
+
+        // 视频尺寸适配
         function adjustVideoSize() {
+            if (!videoPlayer.videoWidth || !videoPlayer.videoHeight) return;
+            
             const videoRatio = videoPlayer.videoWidth / videoPlayer.videoHeight;
             const windowRatio = window.innerWidth / window.innerHeight;
             
@@ -218,24 +483,60 @@
             }
         }
 
+        // 更新播放/暂停状态UI
+        function updatePlayPauseUI() {
+            if (videoPlayer.paused) {
+                playPauseIcon.setAttribute('d', 'M8 5v14l11-7z');
+                playButtonText.textContent = '播放';
+                centerPlayBtn.style.display = 'flex';
+            } else {
+                playPauseIcon.setAttribute('d', 'M6 4h4v16H6zm8 0h4v16h-4z');
+                playButtonText.textContent = '暂停';
+                centerPlayBtn.style.display = 'none';
+            }
+        }
+
+        // 播放/暂停切换
+        function togglePlayPause() {
+            if (videoPlayer.paused) {
+                videoPlayer.play().catch(err => {
+                    console.log('播放失败:', err);
+                    showAlert(); // 播放失败时也显示提示
+                });
+            } else {
+                videoPlayer.pause();
+            }
+            updatePlayPauseUI();
+        }
+
         // 视频事件处理
         let isInitialLoad = true;
+        
         videoPlayer.addEventListener('loadedmetadata', () => {
             adjustVideoSize();
+            loader.style.display = 'none';
+            videoContainer.style.display = 'block';
+            
             if(isInitialLoad) {
                 videoPlayer.play().catch(() => {
                     // 处理自动播放限制
-                    document.addEventListener('click', () => videoPlayer.play(), { once: true });
+                    document.addEventListener('click', () => {
+                        videoPlayer.play();
+                        updatePlayPauseUI();
+                    }, { once: true });
                 });
                 isInitialLoad = false;
             }
+            updatePlayPauseUI();
         });
 
-        window.addEventListener('resize', () => {
-            if(videoPlayer.readyState > 0) {
-                adjustVideoSize();
-            }
-        });
+        videoPlayer.addEventListener('timeupdate', updateProgress);
+        videoPlayer.addEventListener('ended', loadNextVideo); // 播放结束自动下一个
+        videoPlayer.addEventListener('play', () => updatePlayPauseUI());
+        videoPlayer.addEventListener('pause', () => updatePlayPauseUI());
+        videoPlayer.addEventListener('click', togglePlayPause); // 点击视频播放/暂停
+
+        window.addEventListener('resize', adjustVideoSize);
 
         // 播放器功能
         let videoLinks = [];
@@ -244,31 +545,34 @@
         async function fetchVideoLinks() {
             try {
                 const response = await fetch('XJJ/video_links.txt');
+                if (!response.ok) throw new Error('视频列表加载失败');
+                
                 const text = await response.text();
                 videoLinks = text.split('\n').filter(link => link.trim());
+                
                 if(videoLinks.length) {
                     currentIndex = Math.floor(Math.random() * videoLinks.length);
                     await loadCurrentVideo();
+                } else {
+                    loader.innerHTML = '<p>暂无可用视频</p>';
                 }
             } catch (error) {
-                console.error('视频加载失败');
+                console.error('视频加载失败:', error);
+                loader.innerHTML = '<p>视频加载失败</p>';
             }
         }
 
         async function loadCurrentVideo() {
+            loader.style.display = 'flex';
             videoPlayer.src = videoLinks[currentIndex];
+            
             try {
                 await videoPlayer.play();
+                updatePlayPauseUI();
             } catch (e) {
-                // 自动播放失败时添加点击事件监听
-                document.addEventListener('click', () => videoPlayer.play(), { once: true });
+                console.log('自动播放失败，等待用户交互');
+                updatePlayPauseUI();
             }
-        }
-
-        function togglePlayPause() {
-            videoPlayer.paused ? videoPlayer.play() : videoPlayer.pause();
-            const icon = document.getElementById('playPauseIcon');
-            icon.setAttribute('d', videoPlayer.paused ? 'M8 5v14l11-7z' : 'M6 4h4v16H6zm8 0h4v16h-4z');
         }
 
         async function loadPreviousVideo() {
