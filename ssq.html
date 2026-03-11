@@ -2,97 +2,231 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="favicon.png" type="image/x - icon">
+<link rel="icon" href="favicon.png" type="image/x-icon">
 <title>双色球号码生成器</title>
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+/* 全局样式重置与基础设置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+
+body {
+    font-family: "Microsoft YaHei", Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+/* 容器样式 */
 .container {
-    width: 80%;
+    width: 90%;
+    max-width: 800px;
     margin: 0 auto;
     text-align: center;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* 标题样式 */
 h1 {
-    font-size: 2em;
-    background: linear-gradient(to right, #ff0000, #800080); /* 红色到紫色渐变 */
+    font-size: 2.5em;
+    background: linear-gradient(to right, #e62e4d, #7a28cb);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+    position: relative;
 }
+
+h1::after {
+    content: "";
+    display: block;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(to right, #e62e4d, #7a28cb);
+    margin: 10px auto 0;
+    border-radius: 3px;
+}
+
+/* 按钮样式 */
+button {
+    padding: 12px 30px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(to right, #007bff, #0056b3);
+    color: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    font-weight: bold;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(to right, #0056b3, #003d80);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* 结果区域样式 */
 .results {
     margin-top: 20px;
 }
+
 .result {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px; /* 增加底部间距 */
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
+
+/* 号码球样式 */
 .ball {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
     border-radius: 50%;
     color: #fff;
     text-align: center;
-    margin: 0 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    margin: 0 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     font-weight: bold;
+    font-size: 18px;
     opacity: 0;
     transform: scale(0);
     transition: all 0.6s ease-out;
-}
-.ball.red {
-    background: radial-gradient(circle, #ff4c4c, #b20000);
-}
-.ball.blue {
-    background: radial-gradient(circle, #4c8bff, #0000b2);
-}
-button {
-    padding: 10px 20px;
-    margin-top: 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: #fff;
-    transition: background-color 0.3s;
-}
-button:hover {
-    background-color: #0056b3;
-}
-.info {
-    margin-top: 40px;
-    font-size: 14px;
-    color: #666;
-    line-height: 1.5;
-}
-.disclaimer {
-    margin-top: 40px;
-    font-size: 12px;
-    color: #999;
+    position: relative;
 }
 
+.ball.red {
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #d63031);
+}
+
+.ball.blue {
+    background: radial-gradient(circle at 30% 30%, #74b9ff, #0984e3);
+}
+
+/* 球的高光效果 */
+.ball::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* 动画样式 */
 @keyframes scale-up {
-    from {
+    0% {
         opacity: 0;
-        transform: scale(0);
+        transform: scale(0) rotate(0deg);
     }
-    to {
+    70% {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1.1) rotate(5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
     }
 }
+
 .animate-ball {
     animation: scale-up 0.6s ease-out forwards;
+}
+
+/* 信息区域样式 */
+.info {
+    margin-top: 40px;
+    font-size: 15px;
+    color: #555;
+    line-height: 1.8;
+    text-align: left;
+    padding: 20px;
+    background-color: #f1f5f9;
+    border-radius: 10px;
+}
+
+.info h2 {
+    color: #2d3748;
+    margin: 15px 0 10px;
+    font-size: 1.4em;
+    border-left: 4px solid #007bff;
+    padding-left: 10px;
+}
+
+.info h3 {
+    color: #4a5568;
+    margin: 12px 0 8px;
+    font-size: 1.2em;
+}
+
+.info p {
+    margin-bottom: 10px;
+    text-indent: 2em;
+}
+
+/* 免责声明样式 */
+.disclaimer {
+    margin-top: 30px;
+    font-size: 13px;
+    color: #888;
+    padding: 15px;
+    background-color: #fafafa;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.disclaimer strong {
+    color: #e63946;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .ball {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+        margin: 0 5px;
+    }
+    
+    .result {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px;
+    }
 }
 </style>
 </head>
@@ -156,7 +290,7 @@ function createBall(parent, number, className) {
     // 使用setTimeout为每个球添加延迟并触发动画
     setTimeout(() => {
         ball.classList.add('animate-ball');
-    }, parent.childElementCount * 200); // 每个球之间延迟200ms
+    }, parent.childElementCount * 150); // 调整延迟为150ms，动画更流畅
 }
 
 // 初始化生成号码
