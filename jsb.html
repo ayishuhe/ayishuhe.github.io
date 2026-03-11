@@ -1,272 +1,908 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<link rel="icon" href="favicon.png" type="image/x - icon">
-<title>在线记事本</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-    }
-    #editor {
-        width: 100%;
-        height: 300px;
-        margin-top: 10px;
-    }
-    .file-info {
-        margin-bottom: 10px;
-    }
-    .file-info span {
-        display: block;
-    }
-    .button-group {
-        margin-bottom: 10px;
-    }
-    .find-replace-group {
-        margin-bottom: 10px;
-    }
-    .extract-group {
-        margin-bottom: 10px;
-    }
-    .extracted-text {
-        margin-top: 10px;
-    }
-    .link {
-        color: red;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <title>在线记事本 | 增强版</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #4f46e5;
+            --bg-color: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --button-hover: #1d4ed8;
+            --editor-bg: #f8fafc;
+            --accent-color: #ef4444;
+            --success-color: #10b981;
+        }
+
+        .dark-mode {
+            --primary-color: #3b82f6;
+            --secondary-color: #818cf8;
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --border-color: #334155;
+            --button-hover: #60a5fa;
+            --editor-bg: #1e293b;
+            --accent-color: #f87171;
+            --success-color: #34d399;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .file-info {
+            padding: 10px 15px;
+            background-color: var(--editor-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .file-info span {
+            display: inline-block;
+            margin-right: 20px;
+            font-size: 0.9rem;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 0;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+
+        button.danger {
+            background-color: var(--accent-color);
+        }
+
+        button.success {
+            background-color: var(--success-color);
+        }
+
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            background-color: var(--editor-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .find-replace-group, .extract-group, .format-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"], select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .editor-wrapper {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        #lineNumbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background-color: var(--editor-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 10px 0;
+            text-align: right;
+            padding-right: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #94a3b8;
+            user-select: none;
+        }
+
+        #editor {
+            width: 100%;
+            height: 400px;
+            padding: 10px 10px 10px 50px;
+            border: none;
+            outline: none;
+            resize: vertical;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .extracted-text {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--editor-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .extracted-text h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        #extractedEditor {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: monospace;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            background-color: var(--editor-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background-color: var(--success-color);
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .file-info span {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>在线记事本</h1>
-<div class="file-info" id="fileInfo" style="display:none;">
-    <span id="fileName"></span>
-    <span id="fileSize"></span>
-    <span id="fileSHA1"></span>
-</div>
-<div class="button-group">
-    <button onclick="openFile()">打开</button>
-    <button onclick="saveFile()">保存</button>
-    <button onclick="compressFile()">压缩</button>
-    <button onclick="copyText()">复制</button>
-    <button onclick="pasteText()">粘贴</button>
-    <button onclick="clearText()">清空</button>
-    <button onclick="printText()">打印</button>
-</div>
-<div class="find-replace-group">
-    <label for="findInput">查找：</label>
-    <input type="text" id="findInput">
-    <button onclick="findText()">查找</button>
-    <label for="replaceInput">替换为：</label>
-    <input type="text" id="replaceInput">
-    <button onclick="replaceText()">替换</button>
-    <button onclick="replaceAllText()">全部替换</button>
-</div>
-<div class="extract-group">
-    <label for="startMarker">前标识符：</label>
-    <input type="text" id="startMarker">
-    <label for="endMarker">后标识符：</label>
-    <input type="text" id="endMarker">
-    <button onclick="extractText()">提取中间文本</button>
-</div>
-<textarea id="editor" oninput="highlightLinks()"></textarea>
-<div class="extracted-text" style="display:none;">
-    <h3>提取的文本</h3>
-    <textarea id="extractedEditor" readonly></textarea>
-    <button onclick="copyExtractedText()">复制</button>
-</div>
+    <header>
+        <h1>📝 在线记事本</h1>
+        <div>
+            <button id="themeToggle" class="secondary">切换暗黑模式</button>
+            <button id="autoSaveToggle" class="secondary">开启自动保存</button>
+        </div>
+    </header>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-<script>
-// 异步函数来计算SHA1值
-async function computeSHA1(file) {
-    const arrayBuffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest('SHA-1', arrayBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
-}
+    <div class="container">
+        <!-- 文件信息 -->
+        <div class="file-info" id="fileInfo">
+            <span id="fileName">文件名：未选择文件</span>
+            <span id="fileSize">文件大小：0 字节</span>
+            <span id="fileSHA1">SHA1：-</span>
+        </div>
 
-function openFile() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = async e => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('editor').value = e.target.result;
-                highlightLinks(); // 高亮链接
-            };
-            reader.readAsText(file);
+        <!-- 主要操作按钮 -->
+        <div class="button-group">
+            <button onclick="openFile()">📂 打开文件</button>
+            <button onclick="saveFile()">💾 保存文件</button>
+            <button onclick="compressFile()">🗜️ 压缩文件</button>
+            <button onclick="copyText()">📋 复制全部</button>
+            <button onclick="pasteText()">📌 粘贴内容</button>
+            <button onclick="undoText()" title="撤销">↩️ 撤销</button>
+            <button onclick="redoText()" title="重做">↪️ 重做</button>
+            <button onclick="clearText()" class="danger">🗑️ 清空内容</button>
+            <button onclick="printText()">🖨️ 打印内容</button>
+        </div>
 
-            // 显示文件信息
-            document.getElementById('fileName').textContent = `文件名：${file.name}`;
-            document.getElementById('fileSize').textContent = `文件大小：${file.size} 字节`;
-            const sha1 = await computeSHA1(file);
-            document.getElementById('fileSHA1').textContent = `SHA1：${sha1}`;
-            document.getElementById('fileInfo').style.display = 'block';
-        }
-    };
-    input.click();
-}
+        <!-- 控制组 -->
+        <div class="control-group">
+            <!-- 查找替换 -->
+            <div class="find-replace-group">
+                <label for="findInput">🔍 查找：</label>
+                <input type="text" id="findInput" placeholder="输入要查找的内容">
+                <button onclick="findText()">查找</button>
+                <button onclick="findNextText()">下一个</button>
+                
+                <label for="replaceInput">🔄 替换为：</label>
+                <input type="text" id="replaceInput" placeholder="输入替换后的内容">
+                <button onclick="replaceText()">替换</button>
+                <button onclick="replaceAllText()">全部替换</button>
+            </div>
 
-function saveFile() {
-    const textToSave = document.getElementById('editor').value;
-    const blob = new Blob([textToSave], {type: "text/plain"});
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'note.txt';
-    link.click();
-}
+            <!-- 文本提取 -->
+            <div class="extract-group">
+                <label for="startMarker">🔖 前标识符：</label>
+                <input type="text" id="startMarker" placeholder="开始标记">
+                <label for="endMarker">🔖 后标识符：</label>
+                <input type="text" id="endMarker" placeholder="结束标记">
+                <button onclick="extractText()">提取中间文本</button>
+            </div>
 
-function compressFile() {
-    const textToSave = document.getElementById('editor').value;
-    const fileName = document.getElementById('fileName').textContent.split('：')[1] || 'note';
-    const zip = new JSZip();
-    zip.file(fileName + '_ysh.txt', textToSave);
+            <!-- 格式设置 -->
+            <div class="format-group">
+                <label for="fontSizeSelect">📝 字体大小：</label>
+                <select id="fontSizeSelect" onchange="changeFontSize()">
+                    <option value="12">12px</option>
+                    <option value="14" selected>14px</option>
+                    <option value="16">16px</option>
+                    <option value="18">18px</option>
+                    <option value="20">20px</option>
+                </select>
+                
+                <label for="lineWrapSelect">📏 换行：</label>
+                <select id="lineWrapSelect" onchange="changeLineWrap()">
+                    <option value="pre-wrap" selected>自动换行</option>
+                    <option value="pre">不换行</option>
+                </select>
+            </div>
+        </div>
 
-    zip.generateAsync({type: "blob"})
-        .then(function(content) {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(content);
-            link.download = fileName + '_ysh.zip';
-            link.click();
+        <!-- 编辑器区域 -->
+        <div class="editor-wrapper">
+            <div id="lineNumbers"></div>
+            <textarea id="editor" oninput="updateLineNumbers(); saveToHistory(); highlightLinks()"></textarea>
+        </div>
+
+        <!-- 提取的文本区域 -->
+        <div class="extracted-text" id="extractedTextArea">
+            <h3>📤 提取的文本</h3>
+            <textarea id="extractedEditor" readonly></textarea>
+            <button onclick="copyExtractedText()" class="success">📋 复制提取的文本</button>
+            <button onclick="clearExtractedText()">🗑️ 清空提取结果</button>
+        </div>
+
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span id="charCount">字符数：0 | 行数：0</span>
+            <span id="autoSaveStatus">自动保存：未开启</span>
+            <span id="lastSaved">最后保存：-</span>
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 引入JSZip库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+    <script>
+        // 全局变量
+        let findPosition = 0;          // 查找位置
+        let history = [];              // 撤销/重做历史
+        let historyIndex = -1;         // 当前历史索引
+        let autoSaveEnabled = false;   // 自动保存开关
+        let autoSaveTimer = null;      // 自动保存定时器
+        let currentFileName = "note";  // 当前文件名
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载本地存储的内容
+            loadFromLocalStorage();
+            // 更新行号和字符计数
+            updateLineNumbers();
+            updateCharCount();
+            // 绑定暗黑模式切换
+            document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
+            // 绑定自动保存切换
+            document.getElementById('autoSaveToggle').addEventListener('click', toggleAutoSave);
+            // 监听编辑器输入更新字符计数
+            document.getElementById('editor').addEventListener('input', updateCharCount);
         });
-}
 
-function copyText() {
-    const textarea = document.getElementById('editor');
-    textarea.select();
-    document.execCommand('copy');
-}
-
-function pasteText() {
-    const textarea = document.getElementById('editor');
-    navigator.clipboard.readText().then(text => {
-        textarea.value += text;
-        highlightLinks(); // 高亮链接
-    }).catch(err => {
-        alert('无法读取剪贴板内容');
-    });
-}
-
-function clearText() {
-    document.getElementById('editor').value = '';
-}
-
-function findText() {
-    const editor = document.getElementById('editor');
-    const findValue = document.getElementById('findInput').value;
-    const text = editor.value;
-
-    if (findValue) {
-        const index = text.indexOf(findValue);
-        if (index !== -1) {
-            editor.setSelectionRange(index, index + findValue.length);
-            editor.focus();
-        } else {
-            alert('未找到匹配的文本');
-        }
-    } else {
-        alert('请输入要查找的文本');
-    }
-}
-
-function replaceText() {
-    const editor = document.getElementById('editor');
-    const findValue = document.getElementById('findInput').value;
-    const replaceValue = document.getElementById('replaceInput').value;
-    const text = editor.value;
-
-    if (findValue) {
-        const newText = text.replace(findValue, replaceValue);
-        editor.value = newText;
-        highlightLinks(); // 高亮链接
-    } else {
-        alert('请输入要查找的文本');
-    }
-}
-
-function replaceAllText() {
-    const editor = document.getElementById('editor');
-    const findValue = document.getElementById('findInput').value;
-    const replaceValue = document.getElementById('replaceInput').value;
-    const text = editor.value;
-
-    if (findValue) {
-        const newText = text.replaceAll(findValue, replaceValue);
-        editor.value = newText;
-        highlightLinks(); // 高亮链接
-    } else {
-        alert('请输入要查找的文本');
-    }
-}
-
-function extractText() {
-    const editor = document.getElementById('editor');
-    const startMarker = document.getElementById('startMarker').value;
-    const endMarker = document.getElementById('endMarker').value;
-    const text = editor.value;
-
-    if (startMarker && endMarker) {
-        const regex = new RegExp(`${startMarker}(.*?)${endMarker}`, 'gs');
-        const matches = [];
-        let match;
-
-        while ((match = regex.exec(text)) !== null) {
-            matches.push(match[1]);
-        }
-
-        if (matches.length > 0) {
-            const extractedText = matches.join('\n');
-            document.getElementById('extractedEditor').value = extractedText;
-            document.querySelector('.extracted-text').style.display = 'block';
-
-            // 选中第一个匹配项
-            const firstMatchIndex = text.indexOf(startMarker + matches[0] + endMarker);
-            if (firstMatchIndex !== -1) {
-                editor.setSelectionRange(firstMatchIndex, firstMatchIndex + startMarker.length + matches[0].length + endMarker.length);
-                editor.focus();
+        // -------------------------- 核心功能 --------------------------
+        // 异步计算SHA1值
+        async function computeSHA1(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const hashBuffer = await crypto.subtle.digest('SHA-1', arrayBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                return hashHex;
+            } catch (error) {
+                showToast('计算SHA1失败：' + error.message);
+                return '计算失败';
             }
-        } else {
-            alert('未找到匹配的文本');
         }
-    } else {
-        alert('请输入前标识符和后标识符');
-    }
-}
 
-function copyExtractedText() {
-    const extractedEditor = document.getElementById('extractedEditor');
-    extractedEditor.select();
-    document.execCommand('copy');
-    alert('已复制提取的文本');
-}
+        // 打开文件
+        function openFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt,.md,.log,.json,.xml'; // 限制文件类型
+            input.onchange = async e => {
+                const file = e.target.files[0];
+                if (file) {
+                    currentFileName = file.name.replace(/\.[^/.]+$/, "");
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const editor = document.getElementById('editor');
+                        editor.value = e.target.result;
+                        updateLineNumbers();
+                        updateCharCount();
+                        saveToHistory();
+                        showToast(`成功打开文件：${file.name}`);
+                    };
+                    reader.onerror = function() {
+                        showToast('读取文件失败，请重试');
+                    };
+                    reader.readAsText(file);
 
-function printText() {
-    const editor = document.getElementById('editor');
-    const textToPrint = editor.value;
+                    // 显示文件信息
+                    document.getElementById('fileName').textContent = `文件名：${file.name}`;
+                    document.getElementById('fileSize').textContent = `文件大小：${formatFileSize(file.size)}`;
+                    const sha1 = await computeSHA1(file);
+                    document.getElementById('fileSHA1').textContent = `SHA1：${sha1}`;
+                    document.getElementById('fileInfo').style.display = 'block';
+                }
+            };
+            input.click();
+        }
 
-    const printWindow = window.open('', '', 'height=500,width=800');
-    printWindow.document.write('<html><head><title>打印内容</title>');
-    printWindow.document.write('</head><body>');
-    printWindow.document.write(`<pre>${textToPrint}</pre>`);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.print();
-}
+        // 保存文件
+        function saveFile() {
+            try {
+                const textToSave = document.getElementById('editor').value;
+                const blob = new Blob([textToSave], {type: "text/plain;charset=utf-8"});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = currentFileName + '.txt';
+                link.click();
+                
+                // 更新最后保存时间
+                document.getElementById('lastSaved').textContent = `最后保存：${new Date().toLocaleString()}`;
+                showToast('文件保存成功！');
+                
+                // 保存到本地存储
+                localStorage.setItem('noteContent', textToSave);
+            } catch (error) {
+                showToast('保存文件失败：' + error.message);
+            }
+        }
 
-// 高亮链接的函数
-function highlightLinks() {
-    const editor = document.getElementById('editor');
-    const text = editor.value;
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const markedText = text.replace(urlRegex, '<span class="link">$&</span>');
-    editor.innerHTML = markedText;
-}
+        // 压缩文件
+        function compressFile() {
+            try {
+                const textToSave = document.getElementById('editor').value;
+                if (!textToSave) {
+                    showToast('编辑器为空，无需压缩');
+                    return;
+                }
+                
+                const zip = new JSZip();
+                zip.file(currentFileName + '_compressed.txt', textToSave);
 
-// 初始化高亮链接
-highlightLinks();
-</script>
+                zip.generateAsync({type: "blob", compression: "DEFLATE", compressionOptions: {level: 9}})
+                    .then(function(content) {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(content);
+                        link.download = currentFileName + '_compressed.zip';
+                        link.click();
+                        showToast('文件压缩并下载成功！');
+                    })
+                    .catch(function(error) {
+                        showToast('压缩失败：' + error.message);
+                    });
+            } catch (error) {
+                showToast('压缩文件失败：' + error.message);
+            }
+        }
+
+        // -------------------------- 文本操作 --------------------------
+        // 复制文本
+        function copyText() {
+            try {
+                const textarea = document.getElementById('editor');
+                textarea.select();
+                navigator.clipboard.writeText(textarea.value)
+                    .then(() => showToast('内容已复制到剪贴板！'))
+                    .catch(() => {
+                        // 降级方案
+                        document.execCommand('copy');
+                        showToast('内容已复制到剪贴板！');
+                    });
+            } catch (error) {
+                showToast('复制失败：' + error.message);
+            }
+        }
+
+        // 粘贴文本
+        function pasteText() {
+            const textarea = document.getElementById('editor');
+            navigator.clipboard.readText()
+                .then(text => {
+                    // 在光标位置粘贴，而不是追加
+                    const startPos = textarea.selectionStart;
+                    const endPos = textarea.selectionEnd;
+                    const currentValue = textarea.value;
+                    
+                    textarea.value = currentValue.substring(0, startPos) + text + currentValue.substring(endPos);
+                    // 移动光标到粘贴内容后面
+                    textarea.selectionStart = textarea.selectionEnd = startPos + text.length;
+                    
+                    updateLineNumbers();
+                    updateCharCount();
+                    saveToHistory();
+                    showToast('剪贴板内容粘贴成功！');
+                })
+                .catch(err => {
+                    showToast('无法读取剪贴板：' + err.message);
+                });
+        }
+
+        // 清空文本
+        function clearText() {
+            if (confirm('确定要清空所有内容吗？此操作不可撤销！')) {
+                document.getElementById('editor').value = '';
+                document.getElementById('extractedEditor').value = '';
+                document.getElementById('extractedTextArea').style.display = 'none';
+                updateLineNumbers();
+                updateCharCount();
+                saveToHistory();
+                showToast('内容已清空');
+            }
+        }
+
+        // 撤销
+        function undoText() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                document.getElementById('editor').value = history[historyIndex];
+                updateLineNumbers();
+                updateCharCount();
+                showToast('已撤销上一步操作');
+            } else {
+                showToast('无法撤销，已是最早状态');
+            }
+        }
+
+        // 重做
+        function redoText() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                document.getElementById('editor').value = history[historyIndex];
+                updateLineNumbers();
+                updateCharCount();
+                showToast('已重做上一步操作');
+            } else {
+                showToast('无法重做，已是最新状态');
+            }
+        }
+
+        // 保存到历史记录
+        function saveToHistory() {
+            const currentValue = document.getElementById('editor').value;
+            // 只保存不同的内容
+            if (historyIndex === -1 || history[historyIndex] !== currentValue) {
+                // 清除当前索引后的历史（如果有重做记录）
+                if (historyIndex < history.length - 1) {
+                    history = history.slice(0, historyIndex + 1);
+                }
+                history.push(currentValue);
+                historyIndex = history.length - 1;
+                // 限制历史记录数量
+                if (history.length > 50) {
+                    history.shift();
+                    historyIndex--;
+                }
+            }
+        }
+
+        // -------------------------- 查找替换 --------------------------
+        // 查找文本
+        function findText() {
+            const editor = document.getElementById('editor');
+            const findValue = document.getElementById('findInput').value.trim();
+            
+            if (!findValue) {
+                showToast('请输入要查找的文本');
+                return;
+            }
+            
+            findPosition = 0;
+            findNextText();
+        }
+
+        // 查找下一个
+        function findNextText() {
+            const editor = document.getElementById('editor');
+            const findValue = document.getElementById('findInput').value.trim();
+            const text = editor.value;
+
+            if (!findValue) return;
+
+            const index = text.indexOf(findValue, findPosition);
+            if (index !== -1) {
+                editor.focus();
+                editor.setSelectionRange(index, index + findValue.length);
+                findPosition = index + findValue.length;
+                
+                // 滚动到选中位置
+                editor.scrollTop = (index > 100) ? editor.scrollTop + (index / 10) : 0;
+            } else {
+                findPosition = 0;
+                showToast('已到查找结果末尾，从头开始');
+                findNextText();
+            }
+        }
+
+        // 替换文本
+        function replaceText() {
+            const editor = document.getElementById('editor');
+            const findValue = document.getElementById('findInput').value.trim();
+            const replaceValue = document.getElementById('replaceInput').value;
+            
+            if (!findValue) {
+                showToast('请输入要查找的文本');
+                return;
+            }
+
+            const text = editor.value;
+            const cursorPos = editor.selectionStart;
+            
+            // 检查当前选中的是否是要替换的内容
+            if (text.substring(editor.selectionStart, editor.selectionEnd) === findValue) {
+                const newText = text.substring(0, editor.selectionStart) + replaceValue + text.substring(editor.selectionEnd);
+                editor.value = newText;
+                // 移动光标到替换后的位置
+                editor.selectionStart = editor.selectionEnd = cursorPos + replaceValue.length;
+                findPosition = cursorPos + replaceValue.length;
+            } else {
+                // 找不到则提示
+                findNextText();
+                showToast('未选中要替换的文本，已自动定位到下一个匹配项');
+            }
+            
+            updateLineNumbers();
+            updateCharCount();
+            saveToHistory();
+        }
+
+        // 全部替换
+        function replaceAllText() {
+            const editor = document.getElementById('editor');
+            const findValue = document.getElementById('findInput').value.trim();
+            const replaceValue = document.getElementById('replaceInput').value;
+            
+            if (!findValue) {
+                showToast('请输入要查找的文本');
+                return;
+            }
+
+            const text = editor.value;
+            const regex = new RegExp(findValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+            const newText = text.replace(regex, replaceValue);
+            const replaceCount = (text.match(regex) || []).length;
+            
+            editor.value = newText;
+            updateLineNumbers();
+            updateCharCount();
+            saveToHistory();
+            showToast(`已替换 ${replaceCount} 处匹配项`);
+        }
+
+        // -------------------------- 文本提取 --------------------------
+        // 提取文本
+        function extractText() {
+            const editor = document.getElementById('editor');
+            const startMarker = document.getElementById('startMarker').value.trim();
+            const endMarker = document.getElementById('endMarker').value.trim();
+            const text = editor.value;
+
+            if (!startMarker || !endMarker) {
+                showToast('请输入前标识符和后标识符');
+                return;
+            }
+
+            try {
+                // 转义正则特殊字符
+                const escapedStart = startMarker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const escapedEnd = endMarker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`${escapedStart}(.*?)${escapedEnd}`, 'gs');
+                
+                const matches = [];
+                let match;
+
+                while ((match = regex.exec(text)) !== null) {
+                    matches.push(match[1]);
+                }
+
+                if (matches.length > 0) {
+                    const extractedText = matches.join('\n');
+                    document.getElementById('extractedEditor').value = extractedText;
+                    document.getElementById('extractedTextArea').style.display = 'block';
+
+                    // 选中第一个匹配项
+                    const firstMatchIndex = text.indexOf(startMarker + matches[0] + endMarker);
+                    if (firstMatchIndex !== -1) {
+                        editor.focus();
+                        editor.setSelectionRange(firstMatchIndex, firstMatchIndex + startMarker.length + matches[0].length + endMarker.length);
+                    }
+                    
+                    showToast(`成功提取 ${matches.length} 条文本`);
+                } else {
+                    showToast('未找到匹配的文本');
+                }
+            } catch (error) {
+                showToast('提取失败：' + error.message);
+            }
+        }
+
+        // 复制提取的文本
+        function copyExtractedText() {
+            try {
+                const extractedEditor = document.getElementById('extractedEditor');
+                extractedEditor.select();
+                navigator.clipboard.writeText(extractedEditor.value)
+                    .then(() => showToast('提取的文本已复制！'))
+                    .catch(() => {
+                        document.execCommand('copy');
+                        showToast('提取的文本已复制！');
+                    });
+            } catch (error) {
+                showToast('复制失败：' + error.message);
+            }
+        }
+
+        // 清空提取结果
+        function clearExtractedText() {
+            document.getElementById('extractedEditor').value = '';
+            showToast('提取结果已清空');
+        }
+
+        // -------------------------- 格式设置 --------------------------
+        // 更改字体大小
+        function changeFontSize() {
+            const fontSize = document.getElementById('fontSizeSelect').value;
+            document.getElementById('editor').style.fontSize = fontSize + 'px';
+            document.getElementById('lineNumbers').style.fontSize = fontSize + 'px';
+            showToast(`字体大小已设置为 ${fontSize}px`);
+        }
+
+        // 更改换行方式
+        function changeLineWrap() {
+            const wrapStyle = document.getElementById('lineWrapSelect').value;
+            document.getElementById('editor').style.whiteSpace = wrapStyle;
+            showToast(`换行方式已${wrapStyle === 'pre-wrap' ? '开启' : '关闭'}`);
+        }
+
+        // 高亮链接（修复原问题：textarea不支持innerHTML）
+        function highlightLinks() {
+            // 由于textarea不支持HTML高亮，改为在状态栏提示链接数量
+            const editor = document.getElementById('editor');
+            const text = editor.value;
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const links = text.match(urlRegex) || [];
+            
+            if (links.length > 0) {
+                // 可以在控制台显示找到的链接
+                console.log(`找到 ${links.length} 个链接:`, links);
+            }
+        }
+
+        // -------------------------- 辅助功能 --------------------------
+        // 打印文本
+        function printText() {
+            const editor = document.getElementById('editor');
+            const textToPrint = editor.value;
+
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>打印 - ${currentFileName}</title>
+                    <style>
+                        body { font-family: Consolas, monospace; padding: 20px; line-height: 1.5; }
+                        pre { white-space: pre-wrap; word-wrap: break-word; }
+                    </style>
+                </head>
+                <body>
+                    <h2>${currentFileName}.txt</h2>
+                    <hr>
+                    <pre>${textToPrint}</pre>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // 更新行号
+        function updateLineNumbers() {
+            const editor = document.getElementById('editor');
+            const lineNumbers = document.getElementById('lineNumbers');
+            const lines = editor.value.split('\n').length;
+            
+            let lineNumberText = '';
+            for (let i = 1; i <= lines; i++) {
+                lineNumberText += i + '\n';
+            }
+            
+            lineNumbers.textContent = lineNumberText;
+        }
+
+        // 更新字符计数
+        function updateCharCount() {
+            const editor = document.getElementById('editor');
+            const text = editor.value;
+            const charCount = text.length;
+            const lineCount = text.split('\n').length;
+            
+            document.getElementById('charCount').textContent = 
+                `字符数：${charCount} | 行数：${lineCount}`;
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+            else return (bytes / 1048576).toFixed(2) + ' MB';
+        }
+
+        // 显示提示框
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // -------------------------- 主题和存储 --------------------------
+        // 切换暗黑模式
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            showToast(isDark ? '已切换到暗黑模式' : '已切换到浅色模式');
+        }
+
+        // 切换自动保存
+        function toggleAutoSave() {
+            autoSaveEnabled = !autoSaveEnabled;
+            const btn = document.getElementById('autoSaveToggle');
+            const status = document.getElementById('autoSaveStatus');
+            
+            if (autoSaveEnabled) {
+                btn.textContent = '关闭自动保存';
+                status.textContent = '自动保存：已开启（30秒）';
+                autoSaveTimer = setInterval(autoSave, 30000); // 每30秒自动保存
+                showToast('自动保存已开启（每30秒）');
+            } else {
+                btn.textContent = '开启自动保存';
+                status.textContent = '自动保存：未开启';
+                clearInterval(autoSaveTimer);
+                showToast('自动保存已关闭');
+            }
+        }
+
+        // 自动保存
+        function autoSave() {
+            const content = document.getElementById('editor').value;
+            localStorage.setItem('noteContent', content);
+            document.getElementById('lastSaved').textContent = `最后保存：${new Date().toLocaleString()}`;
+            showToast('自动保存成功');
+        }
+
+        // 从本地存储加载内容
+        function loadFromLocalStorage() {
+            const savedContent = localStorage.getItem('noteContent');
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            
+            if (savedContent) {
+                document.getElementById('editor').value = savedContent;
+                saveToHistory();
+                showToast('已加载上次保存的内容');
+            }
+            
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        }
+    </script>
 </body>
 </html>
