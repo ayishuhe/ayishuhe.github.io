@@ -2,89 +2,175 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="favicon.png" type="image/x-icon">
 <title>大乐透号码生成器</title>
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+/* 全局样式重置与基础设置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+
+body {
+    font-family: "Microsoft YaHei", Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+/* 容器样式 */
 .container {
-    width: 80%;
+    width: 90%;
+    max-width: 800px;
     margin: 0 auto;
     text-align: center;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-    border-radius: 10px;
-    margin-top: 50px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }
+
+/* 标题样式 */
 h1 {
-    font-size: 2em;
-    background: linear-gradient(to right, #ff7e00, #ffcc00); /* 橙色到黄色渐变 */
+    font-size: 2.2em;
+    margin-bottom: 25px;
+    background: linear-gradient(to right, #ff7e00, #ffcc00);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: red; /* 修改为红色 */
     background-clip: text;
-    color: transparent; /* 确保非Webkit浏览器也能显示红色 */
+    color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+h2 {
+    font-size: 1.4em;
+    color: #2c3e50;
+    margin: 20px 0 10px;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 8px;
+    display: inline-block;
+}
+
+h3 {
+    font-size: 1.2em;
+    color: #34495e;
+    margin: 15px 0 8px;
+}
+
+/* 结果区域样式 */
 .results {
-    margin-top: 20px;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
 }
+
 .result {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px; /* 增加底部间距 */
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
+
+/* 号码球样式 */
 .ball {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
     border-radius: 50%;
     text-align: center;
-    margin: 0 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    margin: 0 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     font-weight: bold;
+    font-size: 16px;
     opacity: 0;
     transform: scale(0);
     transition: all 0.6s ease-out;
-}
-.ball.blue {
-    background: radial-gradient(circle, #4c8bff, #0000b2);
-    color: #fff; /* 前区蓝色球保持白色文字 */
-}
-.ball.yellow {
-    background: radial-gradient(circle, #ffeb3b, #fbc02d);
-    color: #000; /* 后区黄色球的文字颜色更改为黑色 */
-}
-button {
-    padding: 10px 20px;
-    margin-top: 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: #fff;
-    transition: background-color 0.3s;
-}
-button:hover {
-    background-color: #0056b3;
-}
-.info {
-    margin-top: 40px;
-    font-size: 14px;
-    color: #666;
-    line-height: 1.5;
-}
-.disclaimer {
-    margin-top: 40px;
-    font-size: 12px;
-    color: #999;
+    position: relative;
 }
 
+.ball::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.ball.blue {
+    background: radial-gradient(circle at 30% 30%, #6fa8ff, #0047ab);
+    color: #fff;
+}
+
+.ball.yellow {
+    background: radial-gradient(circle at 30% 30%, #fff35c, #f57f17);
+    color: #000;
+}
+
+/* 按钮样式 */
+button {
+    padding: 12px 30px;
+    margin-top: 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(to right, #007bff, #0056b3);
+    color: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+button:hover {
+    background: linear-gradient(to right, #0056b3, #004085);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+}
+
+/* 信息区域样式 */
+.info {
+    margin-top: 40px;
+    font-size: 15px;
+    color: #495057;
+    line-height: 1.8;
+    text-align: left;
+    padding: 0 10px;
+}
+
+.info p {
+    margin-bottom: 12px;
+}
+
+/* 免责声明样式 */
+.disclaimer {
+    margin-top: 40px;
+    font-size: 13px;
+    color: #6c757d;
+    padding-top: 20px;
+    border-top: 1px dashed #dee2e6;
+}
+
+/* 动画样式 */
 @keyframes scale-up {
     from {
         opacity: 0;
@@ -95,8 +181,34 @@ button:hover {
         transform: scale(1);
     }
 }
+
 .animate-ball {
     animation: scale-up 0.6s ease-out forwards;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .ball {
+        width: 38px;
+        height: 38px;
+        line-height: 38px;
+        margin: 0 5px;
+        font-size: 14px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    button {
+        font-size: 16px;
+        padding: 10px 25px;
+    }
 }
 </style>
 </head>
@@ -162,7 +274,7 @@ function createBall(parent, number, className) {
     // 使用setTimeout为每个球添加延迟并触发动画
     setTimeout(() => {
         ball.classList.add('animate-ball');
-    }, parent.childElementCount * 200); // 每个球之间延迟200ms
+    }, parent.childElementCount * 150); // 调整延迟为150ms，动画更流畅
 }
 
 // 初始化生成号码
