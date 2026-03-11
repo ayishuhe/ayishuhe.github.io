@@ -1,231 +1,474 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026春节倒计时</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            /* 使用红色和金色作为背景色 */
-            background: linear-gradient(45deg, #ffcc33, #ff3333);
-            color: white;
-            position: relative;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>春节倒计时</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-        #particles-js {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
+  body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #d4af37 0%, #c8102e 50%, #8b0000 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
 
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            z-index: 1;
-            max-width: 80%; /* 限制最大宽度以适应小屏幕 */
-            margin: 0 auto; /* 居中显示 */
-        }
+  #particles-js,
+  #fireworks-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
 
-        h1,
-        h2 {
-            font-weight: bold;
-            margin: 0;
-            color: #333;
-            line-height: 1.2; /* 调整行高以改善可读性 */
-        }
+  #fireworks-canvas {
+    z-index: 0;
+    display: none;
+  }
 
-        h1 {
-            font-size: 2.5em; /* 增大标题大小 */
-            margin-bottom: 20px;
-        }
+  .container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 50px 30px;
+    border-radius: 24px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    max-width: 90%;
+    width: 600px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
 
-        h2 {
-            font-size: 1.2em; /* 调整副标题大小 */
-            margin-bottom: 20px;
-            color: #e74c3c; /* 更鲜艳的颜色 */
-        }
+  h1 {
+    font-size: 3em;
+    margin-bottom: 15px;
+    color: #c8102e;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
 
-        #countdown,
-        #currentDateTime {
-            font-size: 1.5em; /* 统一倒计时和当前时间显示大小 */
-            color: #e74c3c;
-            margin-top: 20px;
-            line-height: 1.5; /* 提高行高，增加可读性 */
-        }
-        
-        /* 新增：段落样式 */
-        p {
-            font-size: 1em;
-            color: #555;
-            margin: 10px 0;
-        }
-    </style>
+  .year-info {
+    font-size: 1.3em;
+    color: #8b0000;
+    margin-bottom: 25px;
+  }
+
+  .spring-festival-date {
+    font-size: 1.5em;
+    color: #d4af37;
+    margin-bottom: 30px;
+    font-weight: bold;
+    background: rgba(212, 175, 55, 0.1);
+    padding: 10px 20px;
+    border-radius: 12px;
+    display: inline-block;
+  }
+
+  #countdown {
+    font-size: 2.2em;
+    color: #c8102e;
+    margin: 20px 0;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+
+  #currentDateTime {
+    font-size: 1.1em;
+    color: #666;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #ddd;
+  }
+
+  /* 烟花预览按钮样式 */
+  #fireworkBtn {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(90deg, #c8102e, #d4af37);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(200, 16, 46, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  #fireworkBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(200, 16, 46, 0.5);
+  }
+
+  #fireworkBtn:active {
+    transform: translateY(0);
+  }
+
+  /* 按钮禁用样式 */
+  #fireworkBtn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  @media (max-width: 768px) {
+    h1 { font-size: 2.2em; }
+    .spring-festival-date { font-size: 1.2em; }
+    #countdown { font-size: 1.8em; }
+    .container { padding: 30px 20px; }
+    #fireworkBtn { padding: 10px 25px; font-size: 1em; }
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 1.8em; }
+    #countdown { font-size: 1.5em; line-height: 1.4; }
+  }
+</style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>春节倒计时</h1>
-        <p>2026丙午马年春节时间：</p>
-        <h2>2026年2月17日 星期二 农历正月初一</h2>
-        <div id="countdown"></div>
-        <!-- 当前日期时间显示 -->
-        <div id="currentDateTime"></div>
-    </div>
+<div class="container">
+  <h1 id="yearTitle">春节倒计时</h1>
+  <p class="year-info" id="yearInfo"></p>
+  <div class="spring-festival-date" id="festivalDate"></div>
+  <div id="countdown"></div>
+  <div id="currentDateTime"></div>
+  <!-- 新增烟花预览按钮 -->
+  <button id="fireworkBtn">🎆 预览烟花效果</button>
+</div>
 
-    <!-- Particles.js canvas -->
-    <div id="particles-js"></div>
+<div id="particles-js"></div>
+<canvas id="fireworks-canvas"></canvas>
 
-    <!-- 使用CDN引用particles.js库 -->
-    <script src="js/particles.min.js"></script>
-    <script>
-        const targetDate = new Date("Feb 17, 2026 00:00:00").getTime();
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+// ==============================================
+// 1. 春节日期数据表：2025 ~ 2100 年
+// ==============================================
+const springFestivalData = {
+  2025: { date: '2025-01-29', zodiac: '蛇', ganzhi: '乙巳' },
+  2026: { date: '2026-02-17', zodiac: '马', ganzhi: '丙午' },
+  2027: { date: '2027-02-06', zodiac: '羊', ganzhi: '丁未' },
+  2028: { date: '2028-01-26', zodiac: '猴', ganzhi: '戊申' },
+  2029: { date: '2029-02-13', zodiac: '鸡', ganzhi: '己酉' },
+  2030: { date: '2030-02-03', zodiac: '狗', ganzhi: '庚戌' },
+  2031: { date: '2031-01-23', zodiac: '猪', ganzhi: '辛亥' },
+  2032: { date: '2032-02-11', zodiac: '鼠', ganzhi: '壬子' },
+  2033: { date: '2033-01-31', zodiac: '牛', ganzhi: '癸丑' },
+  2034: { date: '2034-02-19', zodiac: '虎', ganzhi: '甲寅' },
+  2035: { date: '2035-02-08', zodiac: '兔', ganzhi: '乙卯' },
+  2036: { date: '2036-01-28', zodiac: '龙', ganzhi: '丙辰' },
+  2037: { date: '2037-02-15', zodiac: '蛇', ganzhi: '丁巳' },
+  2038: { date: '2038-02-04', zodiac: '马', ganzhi: '戊午' },
+  2039: { date: '2039-01-24', zodiac: '羊', ganzhi: '己未' },
+  2040: { date: '2040-02-12', zodiac: '猴', ganzhi: '庚申' },
+  2041: { date: '2041-02-01', zodiac: '鸡', ganzhi: '辛酉' },
+  2042: { date: '2042-01-22', zodiac: '狗', ganzhi: '壬戌' },
+  2043: { date: '2043-02-10', zodiac: '猪', ganzhi: '癸亥' },
+  2044: { date: '2044-01-30', zodiac: '鼠', ganzhi: '甲子' },
+  2045: { date: '2045-02-17', zodiac: '牛', ganzhi: '乙丑' },
+  2046: { date: '2046-02-06', zodiac: '虎', ganzhi: '丙寅' },
+  2047: { date: '2047-01-26', zodiac: '兔', ganzhi: '丁卯' },
+  2048: { date: '2048-02-14', zodiac: '龙', ganzhi: '戊辰' },
+  2049: { date: '2049-02-02', zodiac: '蛇', ganzhi: '己巳' },
+  2050: { date: '2050-01-23', zodiac: '马', ganzhi: '庚午' },
+  2051: { date: '2051-02-11', zodiac: '羊', ganzhi: '辛未' },
+  2052: { date: '2052-01-31', zodiac: '猴', ganzhi: '壬申' },
+  2053: { date: '2053-02-19', zodiac: '鸡', ganzhi: '癸酉' },
+  2054: { date: '2054-02-08', zodiac: '狗', ganzhi: '甲戌' },
+  2055: { date: '2055-01-28', zodiac: '猪', ganzhi: '乙亥' },
+  2056: { date: '2056-02-15', zodiac: '鼠', ganzhi: '丙子' },
+  2057: { date: '2057-02-05', zodiac: '牛', ganzhi: '丁丑' },
+  2058: { date: '2058-01-25', zodiac: '虎', ganzhi: '戊寅' },
+  2059: { date: '2059-02-13', zodiac: '兔', ganzhi: '己卯' },
+  2060: { date: '2060-02-02', zodiac: '龙', ganzhi: '庚辰' },
+  2061: { date: '2061-01-22', zodiac: '蛇', ganzhi: '辛巳' },
+  2062: { date: '2062-02-10', zodiac: '马', ganzhi: '壬午' },
+  2063: { date: '2063-01-30', zodiac: '羊', ganzhi: '癸未' },
+  2064: { date: '2064-02-17', zodiac: '猴', ganzhi: '甲申' },
+  2065: { date: '2065-02-05', zodiac: '鸡', ganzhi: '乙酉' },
+  2066: { date: '2066-01-25', zodiac: '狗', ganzhi: '丙戌' },
+  2067: { date: '2067-02-13', zodiac: '猪', ganzhi: '丁亥' },
+  2068: { date: '2068-02-02', zodiac: '鼠', ganzhi: '戊子' },
+  2069: { date: '2069-01-22', zodiac: '牛', ganzhi: '己丑' },
+  2070: { date: '2070-02-10', zodiac: '虎', ganzhi: '庚寅' },
+  2071: { date: '2071-01-30', zodiac: '兔', ganzhi: '辛卯' },
+  2072: { date: '2072-02-18', zodiac: '龙', ganzhi: '壬辰' },
+  2073: { date: '2073-02-07', zodiac: '蛇', ganzhi: '癸巳' },
+  2074: { date: '2074-01-27', zodiac: '马', ganzhi: '甲午' },
+  2075: { date: '2075-02-15', zodiac: '羊', ganzhi: '乙未' },
+  2076: { date: '2076-02-05', zodiac: '猴', ganzhi: '丙申' },
+  2077: { date: '2077-01-24', zodiac: '鸡', ganzhi: '丁酉' },
+  2078: { date: '2078-02-12', zodiac: '狗', ganzhi: '戊戌' },
+  2079: { date: '2079-02-02', zodiac: '猪', ganzhi: '己亥' },
+  2080: { date: '2080-01-22', zodiac: '鼠', ganzhi: '庚子' },
+  2081: { date: '2081-02-09', zodiac: '牛', ganzhi: '辛丑' },
+  2082: { date: '2082-01-29', zodiac: '虎', ganzhi: '壬寅' },
+  2083: { date: '2083-02-16', zodiac: '兔', ganzhi: '癸卯' },
+  2084: { date: '2084-02-06', zodiac: '龙', ganzhi: '甲辰' },
+  2085: { date: '2085-01-25', zodiac: '蛇', ganzhi: '乙巳' },
+  2086: { date: '2086-02-12', zodiac: '马', ganzhi: '丙午' },
+  2087: { date: '2087-02-01', zodiac: '羊', ganzhi: '丁未' },
+  2088: { date: '2088-01-21', zodiac: '猴', ganzhi: '戊申' },
+  2089: { date: '2089-02-09', zodiac: '鸡', ganzhi: '己酉' },
+  2090: { date: '2090-01-29', zodiac: '狗', ganzhi: '庚戌' },
+  2091: { date: '2091-02-17', zodiac: '猪', ganzhi: '辛亥' },
+  2092: { date: '2092-02-06', zodiac: '鼠', ganzhi: '壬子' },
+  2093: { date: '2093-01-26', zodiac: '牛', ganzhi: '癸丑' },
+  2094: { date: '2094-02-14', zodiac: '虎', ganzhi: '甲寅' },
+  2095: { date: '2095-02-03', zodiac: '兔', ganzhi: '乙卯' },
+  2096: { date: '2096-01-23', zodiac: '龙', ganzhi: '丙辰' },
+  2097: { date: '2097-02-11', zodiac: '蛇', ganzhi: '丁巳' },
+  2098: { date: '2098-01-31', zodiac: '马', ganzhi: '戊午' },
+  2099: { date: '2099-02-17', zodiac: '羊', ganzhi: '己未' },
+  2100: { date: '2100-02-06', zodiac: '猴', ganzhi: '庚申' }
+};
 
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const diff = targetDate - now;
+// ==============================================
+// 2. 自动判断当前应该显示哪一年的春节
+// ==============================================
+const now = new Date();
+const currentYear = now.getFullYear();
 
-            if (diff < 0) {
-                document.getElementById("countdown").innerText = "春节已经到来！";
-                return;
-            }
+let targetYear;
+let festivalDateStr;
+let festivalMs;
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+// 从当前年份往前找，找到第一个还没过的春节
+for (let y = currentYear; y <= 2100; y++) {
+  const d = new Date(springFestivalData[y].date + 'T00:00:00');
+  if (now < d) {
+    targetYear = y;
+    festivalDateStr = springFestivalData[y].date;
+    festivalMs = d.getTime();
+    break;
+  }
+}
 
-            document.getElementById("countdown").innerText = `${days}天 ${hours}小时 ${minutes}分钟 ${seconds}秒`;
-        }
+// 如果当年所有春节都过了，默认取下一年
+if (!targetYear) {
+  targetYear = currentYear + 1;
+  festivalDateStr = springFestivalData[targetYear]?.date || '2100-02-06';
+  festivalMs = new Date(festivalDateStr + 'T00:00:00').getTime();
+}
 
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+const { zodiac, ganzhi } = springFestivalData[targetYear];
 
-        // 初始化particles.js
-        particlesJS('particles-js', {
-            "particles": {
-                "number": {
-                    "value": 100,
-                    "density": {
-                        "enable": true,
-                        "value_area": 800
-                    }
-                },
-                "color": {
-                    "value": ["#ffcc33", "#ff3333", "#ffffff"]
-                },
-                "shape": {
-                    "type": ["circle", "star"],
-                    "stroke": {
-                        "width": 1,
-                        "color": "#fff"
-                    },
-                    "polygon": {
-                        "nb_sides": 5
-                    }
-                },
-                "opacity": {
-                    "value": 0.8,
-                    "random": false,
-                    "anim": {
-                        "enable": true,
-                        "speed": 1,
-                        "opacity_min": 0.1,
-                        "sync": false
-                    }
-                },
-                "size": {
-                    "value": 5,
-                    "random": true,
-                    "anim": {
-                        "enable": true,
-                        "speed": 10,
-                        "size_min": 0.1,
-                        "sync": false
-                    }
-                },
-                "line_linked": {
-                    "enable": false
-                },
-                "move": {
-                    "enable": true,
-                    "speed": 4,
-                    "direction": "none",
-                    "random": false,
-                    "straight": false,
-                    "out_mode": "out",
-                    "bounce": false,
-                    "attract": {
-                        "enable": false,
-                        "rotateX": 600,
-                        "rotateY": 1200
-                    }
-                }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": {
-                    "onhover": {
-                        "enable": true,
-                        "mode": "grab"
-                    },
-                    "onclick": {
-                        "enable": true,
-                        "mode": "push"
-                    },
-                    "resize": true
-                },
-                "modes": {
-                    "grab": {
-                        "distance": 140,
-                        "line_linked": {
-                            "opacity": 1
-                        }
-                    },
-                    "bubble": {
-                        "distance": 400,
-                        "size": 40,
-                        "duration": 2,
-                        "opacity": 8,
-                        "speed": 3
-                    },
-                    "repulse": {
-                        "distance": 200,
-                        "duration": 0.4
-                    },
-                    "push": {
-                        "particles_nb": 4
-                    },
-                    "remove": {
-                        "particles_nb": 2
-                    }
-                }
-            },
-            "retina_detect": true
-        });
+// ==============================================
+// 3. 页面文字自动填充
+// ==============================================
+document.getElementById('yearTitle').textContent = `${targetYear}年春节倒计时`;
+document.getElementById('yearInfo').textContent = `${ganzhi}${zodiac}年 · 新春大吉`;
 
-        // 动态显示当前日期和时间
-        function updateCurrentDateTime() {
-            const now = new Date();
-            document.getElementById('currentDateTime').innerText = `当前时间：${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日，星期${'日一二三四五六'[now.getDay()]} ${String(now.getHours()).padStart(2, '0')}时${String(now.getMinutes()).padStart(2, '0')}分`;
-        }
+const t = new Date(festivalDateStr);
+const week = '日一二三四五六'[t.getDay()];
+document.getElementById('festivalDate').textContent =
+  `${targetYear}年${t.getMonth()+1}月${t.getDate()}日 星期${week} 农历正月初一`;
 
-        updateCurrentDateTime();
-        setInterval(updateCurrentDateTime, 1000);
-    </script>
+// ==============================================
+// 4. 倒计时
+// ==============================================
+function updateCountdown() {
+  const nowTime = new Date().getTime();
+  const diff = festivalMs - nowTime;
+
+  if (diff < 0) {
+    document.getElementById('countdown').innerText = '🎉 新春快乐！';
+    return;
+  }
+
+  const s = 1000, m = s*60, h = m*60, d = h*24;
+  const days = Math.floor(diff / d);
+  const hours = Math.floor((diff % d) / h);
+  const mins = Math.floor((diff % h) / m);
+  const secs = Math.floor((diff % m) / s);
+
+  document.getElementById('countdown').innerText =
+    `${days}天 ${hours}小时 ${mins}分钟 ${secs}秒`;
+}
+
+// ==============================================
+// 5. 当前时间
+// ==============================================
+function updateCurrentDateTime() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const y = d.getFullYear();
+  const mon = pad(d.getMonth()+1);
+  const day = pad(d.getDate());
+  const w = '日一二三四五六'[d.getDay()];
+  const hh = pad(d.getHours());
+  const mm = pad(d.getMinutes());
+  const ss = pad(d.getSeconds());
+  document.getElementById('currentDateTime').innerText =
+    `当前时间：${y}年${mon}月${day}日 星期${w} ${hh}:${mm}:${ss}`;
+}
+
+// ==============================================
+// 6. 自动判断：正月初一 ~ 初七 → 播放烟花
+// ==============================================
+function isSpringFestivalWeek() {
+  const today = new Date();
+  const ny = today.getFullYear();
+  if (!springFestivalData[ny]) return false;
+  const firstDay = new Date(springFestivalData[ny].date);
+  const seventhDay = new Date(firstDay);
+  seventhDay.setDate(firstDay.getDate() + 6);
+  return today >= firstDay && today <= seventhDay;
+}
+
+// ==============================================
+// 7. 烟花动画核心逻辑（新增控制变量）
+// ==============================================
+const fwCanvas = document.getElementById('fireworks-canvas');
+const fwCtx = fwCanvas.getContext('2d');
+let fwWidth = window.innerWidth;
+let fwHeight = window.innerHeight;
+fwCanvas.width = fwWidth;
+fwCanvas.height = fwHeight;
+
+let particles = [];
+let fireworkInterval = null; // 烟花定时器
+let isFireworkPlaying = false; // 烟花播放状态
+
+// 监听窗口大小变化，适配烟花画布尺寸
+window.addEventListener('resize', () => {
+  fwWidth = window.innerWidth;
+  fwHeight = window.innerHeight;
+  fwCanvas.width = fwWidth;
+  fwCanvas.height = fwHeight;
+});
+
+class FireworkParticle {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.speed = Math.random() * 4 + 2;
+    this.angle = Math.random() * Math.PI * 2;
+    this.gravity = 0.05;
+    this.vx = Math.cos(this.angle) * this.speed;
+    this.vy = Math.sin(this.angle) * this.speed;
+    this.alpha = 1;
+    this.decay = Math.random() * 0.02 + 0.005;
+    this.color = `hsl(${Math.random() * 360},100%,50%)`;
+  }
+  update() {
+    this.vy += this.gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.alpha -= this.decay;
+  }
+  draw() {
+    fwCtx.save();
+    fwCtx.globalAlpha = this.alpha;
+    fwCtx.beginPath();
+    fwCtx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+    fwCtx.fillStyle = this.color;
+    fwCtx.fill();
+    fwCtx.restore();
+  }
+}
+
+function createFirework() {
+  const x = Math.random() * fwWidth;
+  const y = Math.random() * fwHeight * 0.7;
+  for (let i = 0; i < 100; i++) {
+    particles.push(new FireworkParticle(x, y));
+  }
+}
+
+function animateFireworks() {
+  if (!isFireworkPlaying) return; // 停止播放时退出动画循环
+  fwCtx.fillStyle = 'rgba(0,0,0,0.2)';
+  fwCtx.fillRect(0, 0, fwWidth, fwHeight);
+  particles = particles.filter(p => p.alpha > 0);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animateFireworks);
+}
+
+// 启动烟花（重构为可复用函数）
+function startFireworks() {
+  if (isFireworkPlaying) return; // 防止重复启动
+  isFireworkPlaying = true;
+  fwCanvas.style.display = 'block';
+  animateFireworks();
+  fireworkInterval = setInterval(createFirework, 800);
+  
+  // 更新按钮状态
+  const fireworkBtn = document.getElementById('fireworkBtn');
+  fireworkBtn.textContent = '🎇 关闭烟花效果';
+  fireworkBtn.disabled = false;
+}
+
+// 停止烟花
+function stopFireworks() {
+  if (!isFireworkPlaying) return;
+  isFireworkPlaying = false;
+  clearInterval(fireworkInterval);
+  fwCanvas.style.display = 'none';
+  particles = []; // 清空粒子
+  
+  // 更新按钮状态
+  const fireworkBtn = document.getElementById('fireworkBtn');
+  fireworkBtn.textContent = '🎆 预览烟花效果';
+}
+
+// ==============================================
+// 8. 烟花按钮点击事件
+// ==============================================
+document.getElementById('fireworkBtn').addEventListener('click', function() {
+  if (isFireworkPlaying) {
+    stopFireworks();
+  } else {
+    startFireworks();
+  }
+});
+
+// ==============================================
+// 9. 初始化逻辑
+// ==============================================
+updateCountdown();
+updateCurrentDateTime();
+setInterval(updateCountdown, 1000);
+setInterval(updateCurrentDateTime, 1000);
+
+// 过年期间自动放烟花（并禁用按钮）
+if (isSpringFestivalWeek()) {
+  startFireworks();
+  const fireworkBtn = document.getElementById('fireworkBtn');
+  fireworkBtn.textContent = '🎇 春节期间自动播放烟花';
+  fireworkBtn.disabled = true;
+}
+
+// 粒子背景
+particlesJS('particles-js',{
+  particles:{
+    number:{value:100,density:{enable:true,value_area:800}},
+    color:{value:["#ffd700","#c8102e","#fff","#ff8c00"]},
+    shape:{type:["circle","star"],stroke:{width:1,color:"#fff"}},
+    opacity:{value:0.7,random:true,anim:{enable:true,speed:0.5,opacity_min:0.2}},
+    size:{value:5,random:true,anim:{enable:true,speed:8,size_min:0.5}},
+    line_linked:{enable:true,distance:150,color:"#fff",opacity:0.2,width:1},
+    move:{enable:true,speed:3,random:true,out_mode:"out",bounce:true}
+  },
+  interactivity:{
+    events:{onhover:{enable:true,mode:"grab"},onclick:{enable:true,mode:"push"}},
+    modes:{grab:{distance:180,line_linked:{opacity:0.8}},push:{particles_nb:5}}
+  },
+  retina_detect:true
+});
+</script>
 </body>
-
 </html>
