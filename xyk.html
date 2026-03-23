@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信用卡宽限期计算器</title>
+    <style>
+        /* 全局样式重置与基础设置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        :root {
+            /* 主题色 */
+            --primary-color: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --success-color: #10b981;
+            --success-light: #34d399;
+            --error-color: #ef4444;
+            --error-light: #f87171;
+            /* 中性色 */
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            /* 响应式断点 */
+            --breakpoint-sm: 640px;
+            --breakpoint-md: 768px;
+            --breakpoint-lg: 1024px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 1rem;
+            line-height: 1.5;
+        }
+
+        /* 容器样式 - 响应式核心 */
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin: 2rem auto;
+            background: var(--card-bg);
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            border-radius: clamp(0.75rem, 2vw, 1.25rem);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        /* 标题样式 */
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: clamp(1.5rem, 4vw, 2rem);
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-light);
+            border-radius: 3px;
+        }
+
+        /* 表单组样式 */
+        .form-group {
+            margin-bottom: clamp(1rem, 3vw, 1.5rem);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        input {
+            width: 100%;
+            padding: clamp(0.75rem, 2vw, 1rem);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            transition: all 0.2s ease;
+            background-color: var(--bg-color);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        /* 按钮样式 */
+        button {
+            width: 100%;
+            padding: clamp(0.8rem, 2vw, 1.1rem);
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 错误提示 */
+        .error {
+            color: var(--error-color);
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: rgba(239, 68, 68, 0.05);
+            border: 1px solid var(--error-light);
+            display: none;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+        }
+
+        /* 结果展示 */
+        .result {
+            margin-top: clamp(1.5rem, 4vw, 2rem);
+            padding: clamp(1rem, 3vw, 1.5rem);
+            border-radius: 0.5rem;
+            background-color: rgba(16, 185, 129, 0.05);
+            border: 1px solid var(--success-light);
+            display: none;
+        }
+
+        .result h2 {
+            color: var(--success-color);
+            margin-bottom: 0.75rem;
+            font-size: clamp(1.1rem, 2vw, 1.25rem);
+            font-weight: 600;
+        }
+
+        .result p {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        /* 说明文本 */
+        .note {
+            margin-top: clamp(1.5rem, 4vw, 2rem);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: rgba(241, 245, 249, 0.8);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .note strong {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 免责声明样式 */
+        .disclaimer {
+            margin-top: clamp(2rem, 5vw, 2.5rem);
+            padding: clamp(1rem, 3vw, 1.25rem);
+            border-radius: 0.5rem;
+            background-color: rgba(226, 232, 240, 0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        .disclaimer h3 {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: var(--primary-dark);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .disclaimer p {
+            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* PC端适配优化 */
+        @media (min-width: 1024px) {
+            body {
+                padding: 2rem;
+            }
+            
+            .container {
+                margin: 3rem auto;
+            }
+            
+            /* 悬停效果增强 */
+            input:hover {
+                border-color: var(--primary-light);
+            }
+        }
+
+        /* 小屏移动端优化 */
+        @media (max-width: 640px) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .container {
+                margin: 1rem auto;
+                padding: 1.25rem;
+            }
+            
+            .note, .disclaimer {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>信用卡宽限期计算器</h1>
+        
+        <div class="form-group">
+            <label for="billDay">账单日（1-31）：</label>
+            <input type="number" id="billDay" min="1" max="31" placeholder="例如：15">
+        </div>
+        
+        <div class="form-group">
+            <label for="repayDay">还款日（1-31）：</label>
+            <input type="number" id="repayDay" min="1" max="31" placeholder="例如：5">
+        </div>
+        
+        <button onclick="calculateGraceDays()">计算宽限天数</button>
+        
+        <div class="error" id="errorMsg"></div>
+        
+        <div class="result" id="resultBox">
+            <h2>计算结果</h2>
+            <p id="resultText"></p>
+        </div>
+        
+        <div class="note">
+            <strong>信用卡宽限期真实计算规则：</strong><br>
+            1. 账单日之后的消费，计入下一期账单，享受最长宽限期<br>
+            2. 账单日之前的消费，计入当期账单，宽限期较短<br>
+            3. 核心逻辑：宽限天数 = 当期账单还款日剩余天数（若为负则算下期） + 账单周期天数
+        </div>
+
+        <!-- 免责声明区域 -->
+        <div class="disclaimer">
+            <h3>免责声明</h3>
+            <p>1. 本计算器仅提供参考计算结果，不同银行的信用卡账单周期、宽限期规则可能存在差异，具体请以发卡行官方说明为准。<br>
+            2. 计算结果基于通用的信用卡记账规则，不构成任何财务建议或还款指导，请勿仅凭本工具结果进行还款决策。<br>
+            3. 本工具不对计算结果的准确性、完整性和时效性做出任何承诺和保证，如因使用本工具导致的任何损失，本工具开发者不承担任何责任。</p>
+        </div>
+    </div>
+
+    <script>
+        // 计算宽限天数的核心函数（修正版）
+        function calculateGraceDays() {
+            // 获取DOM元素
+            const billDayInput = document.getElementById('billDay');
+            const repayDayInput = document.getElementById('repayDay');
+            const errorMsg = document.getElementById('errorMsg');
+            const resultBox = document.getElementById('resultBox');
+            const resultText = document.getElementById('resultText');
+            
+            // 重置显示状态
+            errorMsg.style.display = 'none';
+            resultBox.style.display = 'none';
+            
+            // 获取输入值并转换为数字
+            const billDay = parseInt(billDayInput.value);
+            const repayDay = parseInt(repayDayInput.value);
+            
+            // 验证输入
+            if (isNaN(billDay) || billDay < 1 || billDay > 31) {
+                errorMsg.textContent = '请输入有效的账单日（1-31）';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (isNaN(repayDay) || repayDay < 1 || repayDay > 31) {
+                errorMsg.textContent = '请输入有效的还款日（1-31）';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // 获取当前日期信息
+            const today = new Date();
+            const currentDay = today.getDate(); // 今天的日期（1-31）
+            const currentMonth = today.getMonth() + 1; // 当前月份（1-12）
+            const currentYear = today.getFullYear(); // 当前年份
+            
+            // 获取当月天数
+            const daysInCurrentMonth = getDaysInMonth(currentMonth, currentYear);
+            // 获取下月天数
+            const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+            const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+            const daysInNextMonth = getDaysInMonth(nextMonth, nextYear);
+            
+            let graceDays = 0;
+            let explanation = '';
+            
+            // 修正后的核心逻辑：基于信用卡真实账单周期计算
+            if (currentDay <= billDay) {
+                // 情况1：今天在账单日当天或之前 → 计入当期账单
+                // 计算到当期还款日的天数（跨月处理）
+                let daysToRepay;
+                if (repayDay >= currentDay) {
+                    // 还款日在本月
+                    daysToRepay = repayDay - currentDay;
+                } else {
+                    // 还款日在下月（比如今天25号，还款日5号）
+                    daysToRepay = (daysInCurrentMonth - currentDay) + repayDay;
+                }
+                graceDays = daysToRepay;
+                explanation = `今天(${currentMonth}月${currentDay}日)在账单日(${billDay}日)之前/当天刷卡，计入当期账单。` +
+                              `距离当期还款日(${repayDay}日)还有${daysToRepay}天，宽限天数为：${graceDays}天`;
+            } else {
+                // 情况2：今天在账单日之后 → 计入下期账单（最长宽限期）
+                // 计算到下期账单日的天数
+                const daysToNextBill = (daysInCurrentMonth - currentDay) + billDay;
+                // 计算下期账单日到下期还款日的天数（跨月处理）
+                let daysFromBillToRepay;
+                if (repayDay >= billDay) {
+                    daysFromBillToRepay = repayDay - billDay;
+                } else {
+                    daysFromBillToRepay = (daysInNextMonth - billDay) + repayDay;
+                }
+                // 总宽限天数 = 到下期账单日 + 账单日到还款日
+                graceDays = daysToNextBill + daysFromBillToRepay;
+                explanation = `今天(${currentMonth}月${currentDay}日)在账单日(${billDay}日)之后刷卡，计入下期账单。` +
+                              `计算方式：到下期账单日(${nextMonth}月${billDay}日)${daysToNextBill}天 + ` +
+                              `账单日到还款日(${repayDay}日)${daysFromBillToRepay}天 = ${graceDays}天（最长宽限期）`;
+            }
+            
+            // 显示结果
+            resultText.textContent = explanation;
+            resultBox.style.display = 'block';
+        }
+        
+        // 辅助函数：获取指定月份的天数
+        function getDaysInMonth(month, year) {
+            // 月份从1开始，Date对象月份从0开始，所以用month作为月份参数时，会返回下个月的第0天（即当月最后一天）
+            return new Date(year, month, 0).getDate();
+        }
+    </script>
+</body>
+</html>
