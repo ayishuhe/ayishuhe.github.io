@@ -11,6 +11,7 @@
             --card-bg: #ffffff;
             --text-main: #333;
             --text-sub: #666;
+            --text-light: #999;
             /* 定义状态颜色 */
             --color-danger: #ff4757; /* 红色 */
             --color-warning: #ffa502; /* 黄色 */
@@ -26,6 +27,7 @@
             min-height: 100vh;
             margin: 0;
             color: var(--text-main);
+            padding: 20px 0;
         }
 
         .container {
@@ -35,6 +37,8 @@
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
         }
 
         h2 {
@@ -128,6 +132,17 @@
             opacity: 0.95;
         }
 
+        /* 免责声明样式 */
+        .disclaimer {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px dashed #eee;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            line-height: 1.5;
+            text-align: justify;
+        }
+
         /* 状态颜色类 */
         .bg-danger { background: var(--color-danger); }
         .bg-warning { background: var(--color-warning); }
@@ -164,6 +179,12 @@
         <div class="result-days" id="daysDisplay">--</div>
         <div class="result-date" id="dateDisplay">--</div>
         <div class="result-desc" id="descDisplay">计算中...</div>
+    </div>
+
+    <!-- 免责声明 -->
+    <div class="disclaimer">
+        <strong>免责声明：</strong><br>
+        本工具提供的还款日期及天数计算结果仅供参考，不构成任何金融建议。由于不同银行对账单日、还款日及免息期的规定可能存在差异（如遇到节假日顺延、特定卡种规则等），实际还款金额和日期请以银行官方APP或账单通知为准。因使用本工具产生的任何逾期或损失，开发者不承担任何责任。
     </div>
 </div>
 
@@ -216,36 +237,23 @@
         spendDate.setHours(0,0,0,0);
 
         // --- 确定这笔消费属于哪个月的账单 ---
-        // 比较 刷卡日 和 当月账单日
         const currentMonthBillDay = new Date(spendDate.getFullYear(), spendDate.getMonth(), billDay);
         
-        let billMonthOffset = 0; // 0=计入本月出的账单, 1=计入下月出的账单
+        let billMonthOffset = 0; 
         
         if (spendDate >= currentMonthBillDay) {
-            // 刷卡日 >= 账单日：过了本期账单日，计入下期账单
+            // 刷卡日 >= 账单日：计入下期账单
             billMonthOffset = 1;
         } else {
-            // 刷卡日 < 账单日：还没到本期账单日，计入本期账单
+            // 刷卡日 < 账单日：计入本期账单
             billMonthOffset = 0;
         }
 
         // --- 确定还款日期 ---
-        // 逻辑：还款日通常在账单日后的下一个月
-        // 例如：账单10号，还款1号。
-        // 1月5日刷 -> 计入1月10日账单 -> 2月1日还款
-        // 1月15日刷 -> 计入2月10日账单 -> 3月1日还款
-        
-        // 计算公式：还款年/月 = 刷卡年/月 + 账单偏移量 + 1(因为还款通常在下个月)
-        // 注意：如果银行规则是“账单日当月还款”（极少见，如账单5号还款25号），逻辑需调整。
-        // 但鉴于用户设定“还款日1号，账单日10号”，这显然是跨月还款。
-        // 为了通用性，我们假设：还款日总是跟随在账单周期结束后的第一个指定日期。
-        
-        // 更稳健的算法：
-        // 目标还款日必须在刷卡日之后。
-        // 我们先构造一个基于“账单月+1”的还款日
+        // 假设还款日在账单日后的下一个月
         let targetRepayDate = new Date(spendDate.getFullYear(), spendDate.getMonth() + billMonthOffset + 1, repayDay);
         
-        // 边界检查：万一构造出的日期比刷卡日还早（极端配置错误），强制加一个月
+        // 边界检查：防止极端配置导致日期倒退
         if (targetRepayDate < spendDate) {
              targetRepayDate = new Date(spendDate.getFullYear(), spendDate.getMonth() + billMonthOffset + 2, repayDay);
         }
