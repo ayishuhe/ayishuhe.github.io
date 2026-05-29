@@ -3,381 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>信用卡宽限期计算器</title>
+    <title>信用卡还款计算器</title>
     <style>
-        /* 全局样式重置与基础设置 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-
         :root {
-            /* 主题色 */
-            --primary-color: #2563eb;
-            --primary-light: #3b82f6;
-            --primary-dark: #1d4ed8;
-            --success-color: #10b981;
-            --success-light: #34d399;
-            --error-color: #ef4444;
-            --error-light: #f87171;
-            /* 中性色 */
-            --bg-color: #f8fafc;
+            --primary-color: #4a90e2;
+            --bg-color: #f4f6f8;
             --card-bg: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-tertiary: #94a3b8;
-            --border-color: #e2e8f0;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            /* 响应式断点 */
-            --breakpoint-sm: 640px;
-            --breakpoint-md: 768px;
-            --breakpoint-lg: 1024px;
+            --text-main: #333;
+            --text-sub: #666;
+            /* 定义状态颜色 */
+            --color-danger: #ff4757; /* 红色 */
+            --color-warning: #ffa502; /* 黄色 */
+            --color-success: #2ed573; /* 绿色 */
         }
 
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            padding: 1rem;
-            line-height: 1.5;
+            margin: 0;
+            color: var(--text-main);
         }
 
-        /* 容器样式 - 响应式核心 */
         .container {
-            max-width: 500px;
-            width: 100%;
-            margin: 2rem auto;
             background: var(--card-bg);
-            padding: clamp(1.5rem, 4vw, 2.5rem);
-            border-radius: clamp(0.75rem, 2vw, 1.25rem);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-color);
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
-        /* 标题样式 */
-        h1 {
+        h2 {
             text-align: center;
+            margin-top: 0;
             color: var(--primary-color);
-            margin-bottom: clamp(1.5rem, 4vw, 2rem);
-            font-size: clamp(1.5rem, 4vw, 2rem);
-            font-weight: 600;
-            position: relative;
-            padding-bottom: 0.75rem;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
         }
 
-        h1::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background-color: var(--primary-light);
-            border-radius: 3px;
+        /* 设置区域布局 */
+        .settings-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        /* 表单组样式 */
-        .form-group {
-            margin-bottom: clamp(1rem, 3vw, 1.5rem);
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 8px;
         }
 
-        input {
+        select, input[type="date"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #fff;
             width: 100%;
-            padding: clamp(0.75rem, 2vw, 1rem);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            transition: all 0.2s ease;
-            background-color: var(--bg-color);
-        }
-
-        input:focus {
+            box-sizing: border-box;
             outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transition: border-color 0.2s;
         }
 
-        input::placeholder {
-            color: var(--text-secondary);
-            opacity: 0.8;
+        select:focus, input[type="date"]:focus {
+            border-color: var(--primary-color);
         }
 
-        /* 按钮样式 */
-        button {
-            width: 100%;
-            padding: clamp(0.8rem, 2vw, 1.1rem);
-            background-color: var(--primary-color);
+        .spend-section {
+            margin-bottom: 25px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        /* 结果展示卡片 */
+        .result-card {
+            padding: 25px 20px;
+            border-radius: 12px;
+            text-align: center;
             color: white;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: clamp(1rem, 2vw, 1.1rem);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 0.5rem;
-            box-shadow: var(--shadow-sm);
+            transition: background 0.3s ease;
+            /* 默认绿色 */
+            background: var(--color-success);
         }
 
-        button:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        button:active {
-            transform: translateY(0);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* 错误提示 */
-        .error {
-            color: var(--error-color);
-            margin-top: 1rem;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            background-color: rgba(239, 68, 68, 0.05);
-            border: 1px solid var(--error-light);
-            display: none;
-            font-size: clamp(0.85rem, 2vw, 0.95rem);
-        }
-
-        /* 结果展示 */
-        .result {
-            margin-top: clamp(1.5rem, 4vw, 2rem);
-            padding: clamp(1rem, 3vw, 1.5rem);
-            border-radius: 0.5rem;
-            background-color: rgba(16, 185, 129, 0.05);
-            border: 1px solid var(--success-light);
-            display: none;
-        }
-
-        .result h2 {
-            color: var(--success-color);
-            margin-bottom: 0.75rem;
-            font-size: clamp(1.1rem, 2vw, 1.25rem);
-            font-weight: 600;
-        }
-
-        .result p {
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            line-height: 1.6;
-            color: var(--text-primary);
-        }
-
-        /* 说明文本 */
-        .note {
-            margin-top: clamp(1.5rem, 4vw, 2rem);
-            font-size: clamp(0.8rem, 2vw, 0.9rem);
-            color: var(--text-secondary);
-            line-height: 1.6;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: rgba(241, 245, 249, 0.8);
-            border-left: 3px solid var(--primary-light);
-        }
-
-        .note strong {
-            color: var(--primary-color);
+        .result-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
             font-weight: 500;
         }
 
-        /* 免责声明样式 */
-        .disclaimer {
-            margin-top: clamp(2rem, 5vw, 2.5rem);
-            padding: clamp(1rem, 3vw, 1.25rem);
-            border-radius: 0.5rem;
-            background-color: rgba(226, 232, 240, 0.5);
-            border: 1px solid var(--border-color);
+        .result-days {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 15px 0;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .disclaimer h3 {
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            color: var(--primary-dark);
-            margin-bottom: 0.75rem;
-            font-weight: 600;
+        .result-date {
+            font-size: 1rem;
+            background: rgba(255,255,255,0.25);
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            margin-top: 5px;
+            font-weight: 500;
         }
 
-        .disclaimer p {
-            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
-            color: var(--text-secondary);
-            line-height: 1.6;
+        .result-desc {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.95;
         }
 
-        /* PC端适配优化 */
-        @media (min-width: 1024px) {
-            body {
-                padding: 2rem;
-            }
-            
-            .container {
-                margin: 3rem auto;
-            }
-            
-            /* 悬停效果增强 */
-            input:hover {
-                border-color: var(--primary-light);
-            }
-        }
+        /* 状态颜色类 */
+        .bg-danger { background: var(--color-danger); }
+        .bg-warning { background: var(--color-warning); }
+        .bg-success { background: var(--color-success); }
 
-        /* 小屏移动端优化 */
-        @media (max-width: 640px) {
-            body {
-                padding: 0.5rem;
-            }
-            
-            .container {
-                margin: 1rem auto;
-                padding: 1.25rem;
-            }
-            
-            .note, .disclaimer {
-                padding: 0.75rem;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>信用卡宽限期计算器</h1>
-        
-        <div class="form-group">
-            <label for="billDay">账单日（1-31）：</label>
-            <input type="number" id="billDay" min="1" max="31" placeholder="例如：15">
-        </div>
-        
-        <div class="form-group">
-            <label for="repayDay">还款日（1-31）：</label>
-            <input type="number" id="repayDay" min="1" max="31" placeholder="例如：5">
-        </div>
-        
-        <button onclick="calculateGraceDays()">计算宽限天数</button>
-        
-        <div class="error" id="errorMsg"></div>
-        
-        <div class="result" id="resultBox">
-            <h2>计算结果</h2>
-            <p id="resultText"></p>
-        </div>
-        
-        <div class="note">
-            <strong>信用卡宽限期真实计算规则：</strong><br>
-            1. 账单日之后的消费，计入下一期账单，享受最长宽限期<br>
-            2. 账单日之前的消费，计入当期账单，宽限期较短<br>
-            3. 核心逻辑：宽限天数 = 当期账单还款日剩余天数（若为负则算下期） + 账单周期天数
-        </div>
 
-        <!-- 免责声明区域 -->
-        <div class="disclaimer">
-            <h3>免责声明</h3>
-            <p>1. 本计算器仅提供参考计算结果，不同银行的信用卡账单周期、宽限期规则可能存在差异，具体请以发卡行官方说明为准。<br>
-            2. 计算结果基于通用的信用卡记账规则，不构成任何财务建议或还款指导，请勿仅凭本工具结果进行还款决策。<br>
-            3. 本工具不对计算结果的准确性、完整性和时效性做出任何承诺和保证，如因使用本工具导致的任何损失，本工具开发者不承担任何责任。</p>
+<div class="container">
+    <h2>💳 还款倒计时</h2>
+
+    <!-- 设置行：还款日在前，账单日在后 -->
+    <div class="settings-row">
+        <div class="input-group">
+            <label for="repayDay">每月还款日</label>
+            <select id="repayDay"></select>
+        </div>
+        <div class="input-group">
+            <label for="billDay">每月账单日</label>
+            <select id="billDay"></select>
         </div>
     </div>
 
-    <script>
-        // 计算宽限天数的核心函数（修正版）
-        function calculateGraceDays() {
-            // 获取DOM元素
-            const billDayInput = document.getElementById('billDay');
-            const repayDayInput = document.getElementById('repayDay');
-            const errorMsg = document.getElementById('errorMsg');
-            const resultBox = document.getElementById('resultBox');
-            const resultText = document.getElementById('resultText');
+    <!-- 刷卡日期 -->
+    <div class="spend-section input-group">
+        <label for="spendDate">刷卡/消费日期</label>
+        <input type="date" id="spendDate">
+    </div>
+
+    <!-- 结果 -->
+    <div class="result-card bg-success" id="resultCard">
+        <div class="result-label">距离最后还款日还剩</div>
+        <div class="result-days" id="daysDisplay">--</div>
+        <div class="result-date" id="dateDisplay">--</div>
+        <div class="result-desc" id="descDisplay">计算中...</div>
+    </div>
+</div>
+
+<script>
+    const repaySelect = document.getElementById('repayDay');
+    const billSelect = document.getElementById('billDay');
+    const spendInput = document.getElementById('spendDate');
+    
+    const daysDisplay = document.getElementById('daysDisplay');
+    const dateDisplay = document.getElementById('dateDisplay');
+    const descDisplay = document.getElementById('descDisplay');
+    const resultCard = document.getElementById('resultCard');
+
+    // 1. 初始化下拉框 (1-31)
+    function initSelects() {
+        for (let i = 1; i <= 31; i++) {
+            let optRepay = new Option(i + '日', i);
+            let optBill = new Option(i + '日', i);
             
-            // 重置显示状态
-            errorMsg.style.display = 'none';
-            resultBox.style.display = 'none';
+            // 默认值设置
+            if (i === 1) optRepay.selected = true; // 还款日默认 1
+            if (i === 10) optBill.selected = true; // 账单日默认 10
             
-            // 获取输入值并转换为数字
-            const billDay = parseInt(billDayInput.value);
-            const repayDay = parseInt(repayDayInput.value);
-            
-            // 验证输入
-            if (isNaN(billDay) || billDay < 1 || billDay > 31) {
-                errorMsg.textContent = '请输入有效的账单日（1-31）';
-                errorMsg.style.display = 'block';
-                return;
-            }
-            
-            if (isNaN(repayDay) || repayDay < 1 || repayDay > 31) {
-                errorMsg.textContent = '请输入有效的还款日（1-31）';
-                errorMsg.style.display = 'block';
-                return;
-            }
-            
-            // 获取当前日期信息
-            const today = new Date();
-            const currentDay = today.getDate(); // 今天的日期（1-31）
-            const currentMonth = today.getMonth() + 1; // 当前月份（1-12）
-            const currentYear = today.getFullYear(); // 当前年份
-            
-            // 获取当月天数
-            const daysInCurrentMonth = getDaysInMonth(currentMonth, currentYear);
-            // 获取下月天数
-            const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
-            const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
-            const daysInNextMonth = getDaysInMonth(nextMonth, nextYear);
-            
-            let graceDays = 0;
-            let explanation = '';
-            
-            // 修正后的核心逻辑：基于信用卡真实账单周期计算
-            if (currentDay <= billDay) {
-                // 情况1：今天在账单日当天或之前 → 计入当期账单
-                // 计算到当期还款日的天数（跨月处理）
-                let daysToRepay;
-                if (repayDay >= currentDay) {
-                    // 还款日在本月
-                    daysToRepay = repayDay - currentDay;
-                } else {
-                    // 还款日在下月（比如今天25号，还款日5号）
-                    daysToRepay = (daysInCurrentMonth - currentDay) + repayDay;
-                }
-                graceDays = daysToRepay;
-                explanation = `今天(${currentMonth}月${currentDay}日)在账单日(${billDay}日)之前/当天刷卡，计入当期账单。` +
-                              `距离当期还款日(${repayDay}日)还有${daysToRepay}天，宽限天数为：${graceDays}天`;
-            } else {
-                // 情况2：今天在账单日之后 → 计入下期账单（最长宽限期）
-                // 计算到下期账单日的天数
-                const daysToNextBill = (daysInCurrentMonth - currentDay) + billDay;
-                // 计算下期账单日到下期还款日的天数（跨月处理）
-                let daysFromBillToRepay;
-                if (repayDay >= billDay) {
-                    daysFromBillToRepay = repayDay - billDay;
-                } else {
-                    daysFromBillToRepay = (daysInNextMonth - billDay) + repayDay;
-                }
-                // 总宽限天数 = 到下期账单日 + 账单日到还款日
-                graceDays = daysToNextBill + daysFromBillToRepay;
-                explanation = `今天(${currentMonth}月${currentDay}日)在账单日(${billDay}日)之后刷卡，计入下期账单。` +
-                              `计算方式：到下期账单日(${nextMonth}月${billDay}日)${daysToNextBill}天 + ` +
-                              `账单日到还款日(${repayDay}日)${daysFromBillToRepay}天 = ${graceDays}天（最长宽限期）`;
-            }
-            
-            // 显示结果
-            resultText.textContent = explanation;
-            resultBox.style.display = 'block';
+            repaySelect.add(optRepay);
+            billSelect.add(optBill);
         }
+    }
+
+    // 2. 初始化日期为今天
+    function initDate() {
+        const d = new Date();
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        spendInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // 3. 核心计算逻辑
+    function calculate() {
+        const repayDay = parseInt(repaySelect.value);
+        const billDay = parseInt(billSelect.value);
+        const spendVal = spendInput.value;
+
+        if (!spendVal) return;
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
         
-        // 辅助函数：获取指定月份的天数
-        function getDaysInMonth(month, year) {
-            // 月份从1开始，Date对象月份从0开始，所以用month作为月份参数时，会返回下个月的第0天（即当月最后一天）
-            return new Date(year, month, 0).getDate();
+        const spendDate = new Date(spendVal);
+        spendDate.setHours(0,0,0,0);
+
+        // --- 确定这笔消费属于哪个月的账单 ---
+        // 比较 刷卡日 和 当月账单日
+        const currentMonthBillDay = new Date(spendDate.getFullYear(), spendDate.getMonth(), billDay);
+        
+        let billMonthOffset = 0; // 0=计入本月出的账单, 1=计入下月出的账单
+        
+        if (spendDate >= currentMonthBillDay) {
+            // 刷卡日 >= 账单日：过了本期账单日，计入下期账单
+            billMonthOffset = 1;
+        } else {
+            // 刷卡日 < 账单日：还没到本期账单日，计入本期账单
+            billMonthOffset = 0;
         }
-    </script>
+
+        // --- 确定还款日期 ---
+        // 逻辑：还款日通常在账单日后的下一个月
+        // 例如：账单10号，还款1号。
+        // 1月5日刷 -> 计入1月10日账单 -> 2月1日还款
+        // 1月15日刷 -> 计入2月10日账单 -> 3月1日还款
+        
+        // 计算公式：还款年/月 = 刷卡年/月 + 账单偏移量 + 1(因为还款通常在下个月)
+        // 注意：如果银行规则是“账单日当月还款”（极少见，如账单5号还款25号），逻辑需调整。
+        // 但鉴于用户设定“还款日1号，账单日10号”，这显然是跨月还款。
+        // 为了通用性，我们假设：还款日总是跟随在账单周期结束后的第一个指定日期。
+        
+        // 更稳健的算法：
+        // 目标还款日必须在刷卡日之后。
+        // 我们先构造一个基于“账单月+1”的还款日
+        let targetRepayDate = new Date(spendDate.getFullYear(), spendDate.getMonth() + billMonthOffset + 1, repayDay);
+        
+        // 边界检查：万一构造出的日期比刷卡日还早（极端配置错误），强制加一个月
+        if (targetRepayDate < spendDate) {
+             targetRepayDate = new Date(spendDate.getFullYear(), spendDate.getMonth() + billMonthOffset + 2, repayDay);
+        }
+
+        // 计算差值
+        const diffTime = targetRepayDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        updateUI(diffDays, targetRepayDate, billMonthOffset);
+    }
+
+    function updateUI(days, date, offset) {
+        daysDisplay.innerText = days;
+        
+        const m = date.getMonth() + 1;
+        const d = date.getDate();
+        dateDisplay.innerText = `${m}月${d}日`;
+
+        // 样式重置
+        resultCard.className = 'result-card';
+
+        // 颜色逻辑严格匹配用户需求
+        if (days <= 3) {
+            // <= 3: 红色
+            resultCard.classList.add('bg-danger');
+            if (days < 0) {
+                descDisplay.innerText = `已逾期 ${Math.abs(days)} 天`;
+            } else if (days === 0) {
+                descDisplay.innerText = "今天最后期限！";
+            } else {
+                descDisplay.innerText = "紧急！即将到期";
+            }
+        } else if (days > 3 && days < 10) {
+            // > 3 且 < 10: 黄色
+            resultCard.classList.add('bg-warning');
+            descDisplay.innerText = "提醒：下周左右到期";
+        } else {
+            // >= 10: 绿色
+            resultCard.classList.add('bg-success');
+            descDisplay.innerText = offset === 0 ? "计入本期账单" : "计入下期账单";
+        }
+    }
+
+    // 监听事件
+    repaySelect.addEventListener('change', calculate);
+    billSelect.addEventListener('change', calculate);
+    spendInput.addEventListener('change', calculate);
+
+    // 启动
+    initSelects();
+    initDate();
+    calculate();
+
+</script>
+
 </body>
 </html>
