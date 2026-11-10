@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#04050c" />
+  <meta name="robots" content="noindex" />
+  <meta name="description" content="页面走丢了。回到春节倒计时首页，继续等待下一个团圆。" />
+  <title>404 · 页面走丢了</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2304050c'/%3E%3Cpath d='M32 10l5.6 16.4L54 32l-16.4 5.6L32 54l-5.6-16.4L10 32l16.4-5.6z' fill='url(%23g)'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #04050c;
+      --text: #eef1ff;
+      --muted: #8a91b4;
+      --stroke: rgba(255, 255, 255, 0.09);
+      --violet: #8b5cf6;
+      --cyan: #22d3ee;
+      --pink: #ff4ecd;
+      --gold: #ffd166;
+      --font-num: "Orbitron", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+      --font-ui: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      color-scheme: dark;
+    }
+
+    body {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: clamp(24px, 6vw, 56px);
+      overflow-x: hidden;
+      background:
+        radial-gradient(1200px 800px at 50% -10%, rgba(84, 60, 180, 0.35), transparent 62%),
+        radial-gradient(900px 700px at 92% 18%, rgba(34, 211, 238, 0.12), transparent 60%),
+        radial-gradient(800px 600px at 4% 82%, rgba(255, 78, 205, 0.1), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at 50% 45%, transparent 32%, rgba(2, 3, 8, 0.6) 100%);
+    }
+
+    /* ---------- 背景 ---------- */
+
+    .stars,
+    .stars::after {
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      background-image:
+        radial-gradient(1.4px 1.4px at 18% 24%, rgba(255, 255, 255, 0.9), transparent 60%),
+        radial-gradient(1.2px 1.2px at 72% 12%, rgba(255, 255, 255, 0.7), transparent 60%),
+        radial-gradient(1.6px 1.6px at 41% 63%, rgba(255, 255, 255, 0.8), transparent 60%),
+        radial-gradient(1.2px 1.2px at 88% 74%, rgba(255, 255, 255, 0.65), transparent 60%),
+        radial-gradient(1.5px 1.5px at 9% 88%, rgba(255, 255, 255, 0.75), transparent 60%),
+        radial-gradient(1.3px 1.3px at 62% 43%, rgba(255, 255, 255, 0.6), transparent 60%),
+        radial-gradient(1.1px 1.1px at 34% 6%, rgba(255, 255, 255, 0.55), transparent 60%),
+        radial-gradient(1.4px 1.4px at 95% 38%, rgba(255, 255, 255, 0.7), transparent 60%);
+      opacity: 0.85;
+      animation: twinkle 6s ease-in-out infinite alternate;
+    }
+
+    .stars::after {
+      inset: 0;
+      background-size: 620px 620px;
+      background-position: 40px 120px;
+      opacity: 0.4;
+      animation-delay: -3s;
+      animation-duration: 9s;
+    }
+
+    .aura {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .aura--violet {
+      width: 55vmax;
+      height: 55vmax;
+      top: -26vmax;
+      left: -20vmax;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.45), transparent 64%);
+      opacity: 0.7;
+      animation: drift 22s ease-in-out infinite alternate;
+    }
+
+    .aura--cyan {
+      width: 44vmax;
+      height: 44vmax;
+      right: -22vmax;
+      bottom: -14vmax;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.24), transparent 64%);
+      opacity: 0.6;
+      animation: drift 28s ease-in-out -9s infinite alternate-reverse;
+    }
+
+    /* ---------- 内容 ---------- */
+
+    .wrap {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 620px;
+      text-align: center;
+      animation: fade-up 0.9s cubic-bezier(0.22, 0.9, 0.24, 1) both;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 16px;
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      color: var(--muted);
+      font-family: var(--font-num);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.26em;
+      text-indent: 0.26em;
+    }
+
+    .badge__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan);
+      animation: pulse-dot 2.4s ease-in-out infinite;
+    }
+
+    .code {
+      margin: clamp(18px, 4vh, 30px) 0 0;
+      font-family: var(--font-num);
+      font-size: clamp(5.4rem, 24vw, 11rem);
+      font-weight: 900;
+      line-height: 0.92;
+      letter-spacing: 0.02em;
+      background: linear-gradient(115deg, #a78bfa 8%, #22d3ee 48%, #ff4ecd 90%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 40px rgba(124, 92, 255, 0.45));
+      animation: shine 7s linear infinite;
+      user-select: none;
+    }
+
+    .title {
+      margin-top: clamp(10px, 2vh, 16px);
+      font-size: clamp(1.2rem, 4.4vw, 1.7rem);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-indent: 0.12em;
+    }
+
+    .desc {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: clamp(0.8rem, 2vw, 0.92rem);
+      font-weight: 300;
+      line-height: 1.9;
+      letter-spacing: 0.08em;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: clamp(26px, 5vh, 40px);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 132px;
+      padding: 13px 26px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-indent: 0.1em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .btn--primary {
+      background: linear-gradient(115deg, #8b5cf6, #22d3ee);
+      color: #06070f;
+      font-weight: 700;
+      box-shadow: 0 18px 40px -18px rgba(94, 120, 255, 0.9);
+    }
+
+    .btn--primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 48px -18px rgba(94, 120, 255, 1);
+    }
+
+    .btn--ghost {
+      border-color: var(--stroke);
+      background: rgba(255, 255, 255, 0.04);
+      color: #cdd4ee;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .btn--ghost:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .footer {
+      margin-top: clamp(30px, 6vh, 52px);
+      color: rgba(138, 145, 180, 0.7);
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      text-indent: 0.18em;
+    }
+
+    .footer__sep {
+      color: rgba(255, 209, 102, 0.6);
+      margin: 0 8px;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    /* ---------- 动画 ---------- */
+
+    @keyframes twinkle {
+      from { opacity: 0.45; }
+      to { opacity: 0.9; }
+    }
+
+    @keyframes drift {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to { transform: translate3d(4vmax, 3vmax, 0) scale(1.08); }
+    }
+
+    @keyframes shine {
+      to { background-position: 220% center; }
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.82); }
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(22px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <div class="aura aura--violet" aria-hidden="true"></div>
+  <div class="aura aura--cyan" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <div class="badge">
+      <span class="badge__dot"></span>
+      PAGE NOT FOUND
+    </div>
+    <h1 class="code">404</h1>
+    <p class="title">这条路上没有团圆</p>
+    <p class="desc">你要找的页面可能已经回到过去，<br />也可能从未出现在这条时光隧道里。</p>
+    <div class="actions">
+      <!-- 项目页部署在 /repo/ 时，把 href="/" 改为 href="/repo/" -->
+      <a class="btn btn--primary" href="/">返回首页</a>
+      <button class="btn btn--ghost" id="backBtn" type="button">返回上一页</button>
+    </div>
+    <p class="footer">愿每一个春节<span class="footer__sep">·</span>都比上一年更接近热爱</p>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var backBtn = document.getElementById("backBtn");
+
+      backBtn.addEventListener("click", function () {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.href = "/";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

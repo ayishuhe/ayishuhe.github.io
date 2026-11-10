@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#04050c" />
+  <meta name="description" content="春节倒计时 · 99 年时光隧道。距离下一个农历新年，每一秒都值得期待。" />
+  <title>春节倒计时 · 99 年时光隧道</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2304050c'/%3E%3Cpath d='M32 10l5.6 16.4L54 32l-16.4 5.6L32 54l-5.6-16.4L10 32l16.4-5.6z' fill='url(%23g)'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <canvas id="fireworks" aria-hidden="true"></canvas>
+  <div class="aura aura--violet" aria-hidden="true"></div>
+  <div class="aura aura--cyan" aria-hidden="true"></div>
+  <div class="aura aura--gold" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <main class="shell">
+    <header class="hero">
+      <div class="badge">
+        <span class="badge__dot"></span>
+        LUNAR NEW YEAR COUNTDOWN
+      </div>
+      <h1 class="hero__title">
+        <span id="heroPrefix">距离</span> <span class="hero__year" id="targetYear">2027</span> <span id="heroSuffix">春节</span>
+      </h1>
+      <p class="hero__sub" id="heroSub">此后 99 个春节，每一次团圆都算数</p>
+      <div class="lunar" id="lunarInfo">
+        <span class="lunar__badge">农历</span>
+        <span class="lunar__date" id="lunarDate">丙午年 十月初二</span>
+        <span class="lunar__sep" aria-hidden="true"></span>
+        <span class="lunar__hour" id="lunarHour">未时</span>
+        <span class="lunar__sep" aria-hidden="true"></span>
+        <span class="lunar__spring" id="springCountdown">下个春节 2月6日</span>
+      </div>
+    </header>
+
+    <section class="clock" aria-label="春节倒计时">
+      <div class="unit">
+        <div class="unit__card"><span class="unit__value" id="days">00</span></div>
+        <span class="unit__label">天</span>
+      </div>
+      <span class="colon" aria-hidden="true">:</span>
+      <div class="unit">
+        <div class="unit__card"><span class="unit__value" id="hours">00</span></div>
+        <span class="unit__label">时</span>
+      </div>
+      <span class="colon" aria-hidden="true">:</span>
+      <div class="unit">
+        <div class="unit__card"><span class="unit__value" id="minutes">00</span></div>
+        <span class="unit__label">分</span>
+      </div>
+      <span class="colon" aria-hidden="true">:</span>
+      <div class="unit">
+        <div class="unit__card"><span class="unit__value" id="seconds">00</span></div>
+        <span class="unit__label">秒</span>
+      </div>
+      <div class="greeting" aria-hidden="true">
+        <span class="greeting__char">新</span>
+        <span class="greeting__char">年</span>
+        <span class="greeting__char">快</span>
+        <span class="greeting__char">乐</span>
+      </div>
+    </section>
+
+    <div class="fx-bar">
+      <button class="fx-preview" id="previewBtn" type="button">
+        <span class="fx-preview__icon" aria-hidden="true">✦</span>
+        预览烟花
+      </button>
+    </div>
+
+    <section class="stats" aria-label="倒计时信息">
+      <div class="stat">
+        <span class="stat__label">目标日期</span>
+        <span class="stat__value" id="targetDate">2027.02.06 正月初一</span>
+      </div>
+      <div class="stat stat--progress">
+        <div class="stat__top">
+          <span class="stat__label" id="progressLabel">丙午年 已过</span>
+          <span class="stat__value" id="progressPercent">0%</span>
+        </div>
+        <div class="progress"><i id="progressBar"></i></div>
+      </div>
+      <div class="stat">
+        <span class="stat__label">99 个春节</span>
+        <span class="stat__value" id="totalDays">0 天</span>
+      </div>
+    </section>
+
+    <section class="timeline" aria-label="未来 99 个春节">
+      <div class="timeline__head">
+        <div>
+          <h2>99 年 · 春节时光隧道</h2>
+          <p>点击年份穿越 · 滚动浏览未来 99 个春节</p>
+        </div>
+        <button class="reset" id="resetBtn" type="button">回到最近春节</button>
+      </div>
+      <div class="years" id="years"></div>
+    </section>
+
+    <footer class="footer">
+      <span>愿每一个春节，都比上一年更接近热爱</span>
+      <span class="footer__sep" aria-hidden="true">·</span>
+      <span>99 SPRING FESTIVALS</span>
+    </footer>
+  </main>
+
+  <div class="celebrate" id="celebrate" role="dialog" aria-modal="true" aria-labelledby="celebrateTitle" hidden>
+    <div class="celebrate__card">
+      <p class="celebrate__eyebrow" id="celebrateYear">2027 · 丁未年</p>
+      <h2 class="celebrate__title" id="celebrateTitle">新春快乐</h2>
+      <p class="celebrate__text">岁岁常欢愉，年年皆胜意</p>
+      <div class="celebrate__actions">
+        <button class="celebrate__btn" id="againBtn" type="button">再看一次烟花</button>
+        <button class="celebrate__btn celebrate__btn--ghost" id="closeCelebrate" type="button">继续倒数</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>
