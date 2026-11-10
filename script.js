@@ -331,6 +331,7 @@
   function endGreetingPreview() {
     window.clearTimeout(greetingPreviewTimer);
     greetingPreview = false;
+    fxFestive = false;
     lunarDateKey = "";
     updateLunar(new Date());
     renderGreeting(false);
@@ -346,6 +347,7 @@
   }
 
   function startGreetingPreview() {
+    fxFestive = true;
     fireworkShow(12);
 
     if (onGreetingDay) return;
@@ -746,6 +748,17 @@
     "251,146,60",
   ];
 
+  const FESTIVE_FX_COLORS = [
+    "255,92,60",
+    "255,174,62",
+    "255,214,130",
+    "255,70,40",
+    "255,236,190",
+    "255,255,255",
+  ];
+
+  let fxFestive = false;
+
   let fxWidth = 0;
   let fxHeight = 0;
   let fxRockets = [];
@@ -764,7 +777,8 @@
   }
 
   function randomFxColor() {
-    return FX_COLORS[Math.floor(Math.random() * FX_COLORS.length)];
+    const palette = fxFestive ? FESTIVE_FX_COLORS : FX_COLORS;
+    return palette[Math.floor(Math.random() * palette.length)];
   }
 
   function explodeFirework(x, y) {
@@ -955,6 +969,7 @@
     setText(els.celebrateYear, `${year} · ${lunarYearName(year)}年`);
     els.celebrate.hidden = false;
     document.body.classList.add("is-celebrating");
+    fxFestive = true;
     fireworkShow(16);
     els.closeCelebrate.focus({ preventScroll: true });
 
@@ -966,6 +981,7 @@
   function closeCelebration() {
     els.celebrate.hidden = true;
     document.body.classList.remove("is-celebrating");
+    fxFestive = false;
     if (els.preview) els.preview.focus({ preventScroll: true });
   }
 
